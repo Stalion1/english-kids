@@ -21,6 +21,13 @@
     padding: 20px;
   }
 
+  h1 {
+    margin: 6px 0 14px;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+  }
+
   h2 {
     margin: 14px 0 6px;
     font-size: 20px;
@@ -51,21 +58,43 @@
     margin-top: 10px;
   }
 
+  /* make choices actually feel like buttons */
   .choice {
     padding: 14px;
     border-radius: 12px;
     background: #eef2f8;
     text-align: center;
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
+    border: 2px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .choice:active { transform: scale(0.98); }
+  .choice.correct { border-color: rgba(0, 160, 80, 0.55); background: rgba(0,160,80,0.12); }
+  .choice.wrong   { border-color: rgba(220, 50, 50, 0.55); background: rgba(220,50,50,0.10); }
+
+  .say-word {
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+    margin: 10px 0 12px;
+    letter-spacing: 0.5px;
   }
 
-  .say {
-    font-size: 26px;
+  .btn {
+    padding: 12px 14px;
+    width: 100%;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
     font-weight: 700;
-    text-align: center;
-    margin-top: 6px;
+    background: #4a6cff;
+    color: #fff;
+    cursor: pointer;
   }
+  .btn:active { transform: scale(0.99); }
 
   .trace-box {
     position: relative;
@@ -74,9 +103,10 @@
     background: #fafbfe;
     border: 2px solid #dde3ee;
     margin-top: 10px;
+    overflow: hidden;
   }
 
-  /* GHOST TRACE WORD — VERY LIGHT */
+  /* GHOST TRACE WORD — MUCH LIGHTER */
   .trace-word {
     position: absolute;
     inset: 0;
@@ -84,10 +114,18 @@
     align-items: center;
     justify-content: center;
     font-size: 64px;
-    font-weight: 700;
-    color: rgba(0,0,0,0.12); /* VERY FAINT */
+    font-weight: 800;
+    color: rgba(0,0,0,0.05);  /* lighter */
+    opacity: 0.55;           /* extra softening */
     pointer-events: none;
     user-select: none;
+    letter-spacing: 1px;
+  }
+
+  /* Optional: “thin guide lines” effect using a subtle stroke */
+  .trace-word {
+    -webkit-text-stroke: 1px rgba(0,0,0,0.06); /* thin + faint */
+    text-shadow: none;
   }
 
   canvas {
@@ -96,58 +134,121 @@
     touch-action: none;
   }
 
-  .clear {
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
     margin-top: 10px;
-    padding: 10px;
-    width: 100%;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
-    background: #4a6cff;
-    color: white;
+  }
+
+  .secondary {
+    background: #eef2f8;
+    color: #222;
   }
 </style>
 </head>
 
 <body>
 <div class="app">
+  <h1>English Kids</h1>
 
   <!-- LOOK -->
   <div class="card">
     <h2>Look</h2>
-    <div class="image-box">🐶</div>
+    <div class="image-box" id="emoji">🐶</div>
   </div>
 
   <!-- GUESS -->
   <div class="card">
     <h2>Guess</h2>
-    <div class="choices">
-      <div class="choice">DOG</div>
-      <div class="choice">CAT</div>
-      <div class="choice">BIRD</div>
-      <div class="choice">FISH</div>
-    </div>
+    <div class="choices" id="choices"></div>
   </div>
 
   <!-- SAY -->
   <div class="card">
     <h2>Say</h2>
-    <div class="say">DOG</div>
+    <div class="say-word" id="word">DOG</div>
+    <button class="btn" id="sayBtn">Say it 🔊</button>
   </div>
 
   <!-- WRITE -->
   <div class="card">
     <h2>Write</h2>
     <div class="trace-box">
-      <div class="trace-word">DOG</div>
+      <div class="trace-word" id="traceWord">DOG</div>
       <canvas id="canvas"></canvas>
     </div>
-    <button class="clear" onclick="clearCanvas()">Clear</button>
+    <div class="row">
+      <button class="btn secondary" id="clearBtn">Clear</button>
+      <button class="btn" id="nextBtn">Next ▶</button>
+    </div>
   </div>
 
 </div>
 
 <script>
+  // --- Lesson data (easy to expand later) ---
+  const lesson = [
+    { word: "DOG", emoji: "🐶", options: ["DOG","CAT","BIRD","FISH"] },
+  ];
+
+  let idx = 0;
+
+  function render() {
+    const item = lesson[idx];
+    document.getElementById("emoji").textContent = item.emoji;
+    document.getElementById("word").textContent = item.word;
+    document.getElementById("traceWord").textContent = item.word;
+
+    const choicesEl = document.getElementById("choices");
+    choicesEl.innerHTML = "";
+
+    item.options.forEach(opt => {
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.type = "button";
+      b.textContent = opt;
+      b.addEventListener("click", () => checkChoice(b, opt === item.word));
+      choicesEl.appendChild(b);
+    });
+
+    clearChoiceStyles();
+    clearCanvas();
+  }
+
+  function clearChoiceStyles() {
+    document.querySelectorAll(".choice").forEach(el => {
+      el.classList.remove("correct","wrong");
+    });
+  }
+
+  function checkChoice(button, correct) {
+    clearChoiceStyles();
+    button.classList.add(correct ? "correct" : "wrong");
+    // Optional: auto-say on correct
+    if (correct) speak(document.getElementById("word").textContent);
+  }
+
+  // --- Speech (Say button) ---
+  function speak(text) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  }
+
+  document.getElementById("sayBtn").addEventListener("click", () => {
+    speak(document.getElementById("word").textContent);
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    idx = (idx + 1) % lesson.length;
+    render();
+  });
+
+  // --- Canvas drawing (iPhone-friendly) ---
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
   let drawing = false;
@@ -157,8 +258,8 @@
     canvas.height = canvas.offsetHeight;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = "#222";
   }
 
   window.addEventListener("resize", resize);
@@ -166,6 +267,7 @@
 
   function start(e) {
     drawing = true;
+    ctx.beginPath();     // prevents first-stroke jump
     draw(e);
   }
 
@@ -177,24 +279,33 @@
   function draw(e) {
     if (!drawing) return;
     const rect = canvas.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    const pt = e.touches ? e.touches[0] : e;
+    const x = pt.clientX - rect.left;
+    const y = pt.clientY - rect.top;
     ctx.lineTo(x, y);
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(x, y);
   }
 
+  // Mouse
   canvas.addEventListener("mousedown", start);
   canvas.addEventListener("mouseup", end);
   canvas.addEventListener("mousemove", draw);
-  canvas.addEventListener("touchstart", start);
-  canvas.addEventListener("touchend", end);
-  canvas.addEventListener("touchmove", draw);
+
+  // Touch (prevent scrolling)
+  canvas.addEventListener("touchstart", (e) => { e.preventDefault(); start(e); }, { passive:false });
+  canvas.addEventListener("touchmove",  (e) => { e.preventDefault(); draw(e);  }, { passive:false });
+  canvas.addEventListener("touchend",   (e) => { e.preventDefault(); end(e);   }, { passive:false });
 
   function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
+
+  document.getElementById("clearBtn").addEventListener("click", clearCanvas);
+
+  // Start
+  render();
 </script>
 
 </body>

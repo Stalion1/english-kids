@@ -7,16 +7,10 @@
 
 <style>
 :root{
-  --blue:#4a6cf7;
-  --purple:#7b5cff;
-  --pink:#ff4fa3;
-  --mint:#22c55e;
-  --yellow:#ffd54a;
-  --ink:#1f2937;
-  --card:rgba(255,255,255,.92);
+  --blue:#4a6cf7; --purple:#7b5cff; --pink:#ff4fa3; --yellow:#ffd54a;
+  --ink:#1f2937; --card:rgba(255,255,255,.92);
 }
 *{box-sizing:border-box}
-
 body{
   margin:0;
   font-family: system-ui, -apple-system, "Arial Rounded MT Bold", Arial, sans-serif;
@@ -29,7 +23,6 @@ body{
     linear-gradient(135deg, #ffe7d2, #f7b9ff 45%, #bfe8ff);
   min-height:100vh;
 }
-
 header{
   position:sticky; top:0; z-index:10;
   color:#fff;
@@ -40,77 +33,38 @@ header{
   box-shadow:0 10px 24px rgba(0,0,0,.18);
 }
 .header-row{
-  max-width:560px;
-  margin:0 auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
+  max-width:560px;margin:0 auto;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
 }
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
   background:rgba(255,255,255,.18);
   border:2px solid rgba(255,255,255,.22);
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:14px;
-  font-weight:900;
+  padding:6px 10px;border-radius:999px;
+  font-size:14px;font-weight:1000;
   backdrop-filter: blur(6px);
 }
-.badge .dot{
-  width:10px;height:10px;border-radius:50%;
-  background:#7CFF9E;
-  box-shadow:0 0 0 3px rgba(124,255,158,.25);
-}
-.star-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:rgba(255,255,255,.18);
-  border:2px solid rgba(255,255,255,.22);
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:14px;
-  font-weight:1000;
-  backdrop-filter: blur(6px);
-}
-.star-pill button{
-  border:none;
-  border-radius:999px;
-  padding:8px 10px;
-  font-size:13px;
-  font-weight:1000;
+.pill button{
+  border:none;border-radius:999px;
+  padding:8px 10px;font-size:13px;font-weight:1000;
   background: linear-gradient(135deg,#ffd54a,#ffe98a);
   color:#5a3b00;
   box-shadow:none;
 }
-.star-pill button:active{ transform:scale(.98); }
+.pill button:active{ transform:scale(.98); }
 
-section{ max-width:560px; margin:0 auto; padding:18px; }
-
+section{max-width:560px;margin:0 auto;padding:18px;}
 .card{
-  background:var(--card);
-  border-radius:18px;
-  padding:18px;
-  margin-bottom:18px;
+  background:var(--card);border-radius:18px;padding:18px;margin-bottom:18px;
   box-shadow:0 14px 30px rgba(0,0,0,.14);
   border:2px solid rgba(255,255,255,.6);
   animation: cardIn .28s ease-out;
 }
-@keyframes cardIn{
-  from{ transform: translateY(6px); opacity:.92; }
-  to{ transform: translateY(0); opacity:1; }
-}
-
-h2{ margin:0 0 10px; font-size:20px; font-weight:1000; }
+@keyframes cardIn{ from{transform:translateY(6px);opacity:.92} to{transform:translateY(0);opacity:1} }
+h2{margin:0 0 10px;font-size:20px;font-weight:1000;}
 
 img{
-  width:230px; height:230px;
-  border-radius:18px;
-  background:#fff;
+  width:230px;height:230px;border-radius:18px;background:#fff;
   border:3px solid rgba(74,108,247,.18);
   box-shadow:0 16px 28px rgba(0,0,0,.16);
 }
@@ -121,92 +75,47 @@ img{
   55%{ transform: rotate(3deg) scale(1.02); }
   100%{ transform: rotate(0deg) scale(1); }
 }
-
-.word{
-  font-size:34px;
-  font-weight:1000;
-  letter-spacing:2px;
-  margin-top:10px;
-}
+.word{ font-size:34px;font-weight:1000;letter-spacing:2px;margin-top:10px; }
 .wordGlow{ animation: glow .6s ease-out; }
 @keyframes glow{
   0%{ text-shadow:0 0 0 rgba(74,108,247,0); transform: scale(1); }
   55%{ text-shadow:0 0 18px rgba(74,108,247,.35); transform: scale(1.05); }
   100%{ text-shadow:0 2px 0 rgba(255,255,255,.8); transform: scale(1); }
 }
-
-.row{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-  margin-top:12px;
-}
-
+.row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:12px;}
 button.big{
-  border:none;
-  border-radius:16px;
-  padding:14px 18px;
-  font-size:18px;
-  font-weight:1000;
-  cursor:pointer;
-  -webkit-tap-highlight-color: transparent;
+  border:none;border-radius:16px;padding:14px 18px;font-size:18px;font-weight:1000;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
   box-shadow:0 10px 18px rgba(0,0,0,.14);
 }
 button.big:active{ transform: scale(.98); }
-
 .btn-blue{ background: linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; }
 .btn-pink{ background: linear-gradient(135deg,var(--pink),#ff86c9); color:#fff; }
 .btn-yellow{ background: linear-gradient(135deg,var(--yellow),#ffe98a); color:#5a3b00; }
 
 canvas{
-  width:330px;
-  height:220px;
-  border-radius:16px;
-  border:3px solid rgba(74,108,247,.25);
-  background:#fff;
-  touch-action:none;
+  width:330px;height:220px;border-radius:16px;
+  border:3px solid rgba(74,108,247,.25);background:#fff;touch-action:none;
   box-shadow: inset 0 0 0 2px rgba(74,108,247,.08);
 }
 
 /* Toast */
 #toast{
-  position:fixed;
-  left:50%;
-  bottom:18px;
+  position:fixed;left:50%;bottom:18px;
   transform: translateX(-50%) translateY(10px);
-  background:rgba(17,24,39,.92);
-  color:#fff;
-  padding:10px 14px;
-  border-radius:999px;
-  font-weight:900;
-  font-size:14px;
-  opacity:0;
-  pointer-events:none;
+  background:rgba(17,24,39,.92);color:#fff;
+  padding:10px 14px;border-radius:999px;
+  font-weight:1000;font-size:14px;
+  opacity:0;pointer-events:none;
   transition: opacity .18s ease, transform .18s ease;
   z-index:999;
 }
-#toast.show{
-  opacity:1;
-  transform: translateX(-50%) translateY(0);
-}
-.small-note{
-  margin-top:10px;
-  font-size:13px;
-  font-weight:800;
-  opacity:.78;
-}
+#toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
 
-/* Star pop layer */
-#fx{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:998;
-}
+/* Star pop */
+#fx{ position:fixed; inset:0; pointer-events:none; z-index:998; }
 .fx-star{
-  position:absolute;
-  font-size:32px;
+  position:absolute;font-size:32px;
   animation: floatUp .9s ease-out forwards;
   filter: drop-shadow(0 10px 10px rgba(0,0,0,.18));
 }
@@ -216,6 +125,24 @@ canvas{
   60%{ transform: translate(-50%,-90px) scale(1.1) rotate(6deg); }
   100%{ transform: translate(-50%,-140px) scale(.9) rotate(0deg); opacity:0; }
 }
+
+/* Lock overlay */
+#lock{
+  display:none;
+  position:fixed; inset:0;
+  background: rgba(0,0,0,.45);
+  z-index:1000;
+  padding:18px;
+}
+#lock .panel{
+  max-width:520px;margin:20vh auto 0;
+  background:rgba(255,255,255,.96);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+#lock h3{ margin:0 0 8px; font-size:20px; }
+#lock p{ margin:0 0 14px; font-weight:900; color:#334155; }
 </style>
 </head>
 
@@ -223,24 +150,26 @@ canvas{
 <header>
   <div class="header-row">
     <div>🌈 English Kids</div>
-
-    <div class="badge"><span class="dot"></span><span>Tap • Guess • Say • Write</span></div>
-
-    <div class="star-pill" id="starPill" title="Stars earned">
-      ⭐ <span id="stars">0</span>
-      <button id="resetStars" type="button">Reset</button>
-    </div>
+    <div class="pill" id="levelPill">🧩 Level <span id="levelNum">1</span> • <span id="lvlInfo">0/0</span></div>
+    <div class="pill" id="starPill">⭐ <span id="stars">0</span> <button id="resetStars" type="button">Reset</button></div>
   </div>
 </header>
 
 <div id="fx"></div>
 <div id="toast">Nice!</div>
 
+<div id="lock">
+  <div class="panel">
+    <h3>🔒 Level Locked</h3>
+    <p>Earn <span id="needStars">0</span> total ⭐ to unlock!</p>
+    <button class="big btn-blue" id="closeLock" type="button">OK</button>
+  </div>
+</div>
+
 <section>
   <div class="card">
     <h2>👀 Look</h2>
     <img id="pic" src="https://placehold.co/230x230?text=DOG" alt="DOG" />
-    <div class="small-note">Tap “Random 🎲” for a new word!</div>
   </div>
 
   <div class="card">
@@ -248,6 +177,7 @@ canvas{
     <div id="word" class="word">DOG</div>
     <div class="row">
       <button class="big btn-yellow" id="randomBtn" type="button">Random 🎲</button>
+      <button class="big btn-blue" id="nextLevelBtn" type="button">Next Level ➡️</button>
     </div>
   </div>
 
@@ -262,23 +192,50 @@ canvas{
     <h2>✍️ Write</h2>
     <canvas id="draw" width="330" height="220"></canvas><br><br>
     <button class="big btn-pink" id="clearBtn" type="button">Clear ✨</button>
-    <div class="small-note">Try drawing the first letter!</div>
   </div>
 </section>
 
 <script>
-const lessons = [
-  { word:"DOG",  say:"dog",  img:"https://placehold.co/230x230?text=DOG"  },
-  { word:"CAT",  say:"cat",  img:"https://placehold.co/230x230?text=CAT"  },
-  { word:"BALL", say:"ball", img:"https://placehold.co/230x230?text=BALL" },
-  { word:"BOOK", say:"book", img:"https://placehold.co/230x230?text=BOOK" }
+const LEVELS = [
+  {
+    name: "Level 1",
+    unlockStars: 0,
+    lessons: [
+      { word:"DOG",  say:"dog",  img:"https://placehold.co/230x230?text=DOG"  },
+      { word:"CAT",  say:"cat",  img:"https://placehold.co/230x230?text=CAT"  },
+      { word:"BALL", say:"ball", img:"https://placehold.co/230x230?text=BALL" },
+      { word:"BOOK", say:"book", img:"https://placehold.co/230x230?text=BOOK" }
+    ]
+  },
+  {
+    name: "Level 2",
+    unlockStars: 10,
+    lessons: [
+      { word:"FISH",  say:"fish",  img:"https://placehold.co/230x230?text=FISH"  },
+      { word:"BIRD",  say:"bird",  img:"https://placehold.co/230x230?text=BIRD"  },
+      { word:"MILK",  say:"milk",  img:"https://placehold.co/230x230?text=MILK"  },
+      { word:"CAKE",  say:"cake",  img:"https://placehold.co/230x230?text=CAKE"  }
+    ]
+  },
+  {
+    name: "Level 3",
+    unlockStars: 25,
+    lessons: [
+      { word:"CHAIR", say:"chair", img:"https://placehold.co/230x230?text=CHAIR" },
+      { word:"TABLE", say:"table", img:"https://placehold.co/230x230?text=TABLE" },
+      { word:"HOUSE", say:"house", img:"https://placehold.co/230x230?text=HOUSE" },
+      { word:"APPLE", say:"apple", img:"https://placehold.co/230x230?text=APPLE" }
+    ]
+  }
 ];
-let i = 0;
 
+// UI refs
 const pic = document.getElementById("pic");
 const wordEl = document.getElementById("word");
 const toast = document.getElementById("toast");
 const fx = document.getElementById("fx");
+const levelNumEl = document.getElementById("levelNum");
+const lvlInfoEl = document.getElementById("lvlInfo");
 
 // Toast
 function showToast(text){
@@ -287,33 +244,8 @@ function showToast(text){
   clearTimeout(showToast._t);
   showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
 }
-
-// Animations
-function wigglePic(){
-  pic.classList.remove("wiggle");
-  void pic.offsetWidth;
-  pic.classList.add("wiggle");
-}
-function glowWord(){
-  wordEl.classList.remove("wordGlow");
-  void wordEl.offsetWidth;
-  wordEl.classList.add("wordGlow");
-}
-function render(){
-  const L = lessons[i];
-  wordEl.textContent = L.word;
-  pic.src = L.img;
-  pic.alt = L.word;
-}
-render();
-
-// ⭐ Stars (saved)
-const STAR_KEY = "ek_stars_v1";
-let stars = Number(localStorage.getItem(STAR_KEY) || "0");
-const starsEl = document.getElementById("stars");
-const starPill = document.getElementById("starPill");
-function paintStars(){ starsEl.textContent = String(stars); }
-paintStars();
+function wigglePic(){ pic.classList.remove("wiggle"); void pic.offsetWidth; pic.classList.add("wiggle"); }
+function glowWord(){ wordEl.classList.remove("wordGlow"); void wordEl.offsetWidth; wordEl.classList.add("wordGlow"); }
 
 function starPop(x,y,count=1){
   const n = Math.min(3, Math.max(1,count));
@@ -331,13 +263,25 @@ function centerOf(el){
   const r = el.getBoundingClientRect();
   return {x:r.left + r.width/2, y:r.top + r.height/2};
 }
+
+// Saved state
+const STAR_KEY = "ek_stars_v2";
+const LEVEL_KEY = "ek_level_v1";
+let stars = Number(localStorage.getItem(STAR_KEY) || "0");
+let level = Math.max(0, Math.min(LEVELS.length-1, Number(localStorage.getItem(LEVEL_KEY) || "0")));
+let idx = 0;
+
+// Stars UI
+const starsEl = document.getElementById("stars");
+function paintStars(){ starsEl.textContent = String(stars); }
+paintStars();
+
 function addStars(n, anchorEl){
   stars += n;
   localStorage.setItem(STAR_KEY, String(stars));
   paintStars();
   const c = anchorEl ? centerOf(anchorEl) : {x:window.innerWidth/2, y:80};
   starPop(c.x,c.y,n);
-  showToast("⭐ +" + n);
 }
 
 document.getElementById("resetStars").addEventListener("click", ()=>{
@@ -347,26 +291,66 @@ document.getElementById("resetStars").addEventListener("click", ()=>{
   showToast("Stars reset!");
 });
 
-// Buttons
-const randomBtn = document.getElementById("randomBtn");
-const sayBtn = document.getElementById("sayBtn");
-const clearBtn = document.getElementById("clearBtn");
+// Level lock overlay
+const lock = document.getElementById("lock");
+const needStarsEl = document.getElementById("needStars");
+document.getElementById("closeLock").addEventListener("click", ()=> lock.style.display="none");
 
-randomBtn.addEventListener("click", ()=>{
-  i = Math.floor(Math.random()*lessons.length);
+function canUseLevel(lv){
+  return stars >= LEVELS[lv].unlockStars;
+}
+function updateLevelPill(){
+  levelNumEl.textContent = String(level+1);
+  const total = LEVELS[level].lessons.length;
+  lvlInfoEl.textContent = `${idx+1}/${total}`;
+}
+
+function render(){
+  const L = LEVELS[level].lessons[idx];
+  wordEl.textContent = L.word;
+  pic.src = L.img;
+  pic.alt = L.word;
+  updateLevelPill();
+}
+
+function randomWord(){
+  idx = Math.floor(Math.random() * LEVELS[level].lessons.length);
   render();
   wigglePic();
-  addStars(1, randomBtn);
+}
+
+function nextLevel(){
+  const next = level + 1;
+  if(next >= LEVELS.length){
+    showToast("Max level!");
+    return;
+  }
+  if(!canUseLevel(next)){
+    needStarsEl.textContent = String(LEVELS[next].unlockStars);
+    lock.style.display = "block";
+    return;
+  }
+  level = next;
+  idx = 0;
+  localStorage.setItem(LEVEL_KEY, String(level));
+  render();
+  showToast("Level up! 🧩");
+}
+
+document.getElementById("randomBtn").addEventListener("click", ()=>{
+  randomWord();
+  addStars(1, document.getElementById("randomBtn"));
   showToast("New word!");
 });
+document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
 
-sayBtn.addEventListener("click", ()=>{
-  const u = new SpeechSynthesisUtterance(lessons[i].say);
+document.getElementById("sayBtn").addEventListener("click", ()=>{
+  const u = new SpeechSynthesisUtterance(LEVELS[level].lessons[idx].say);
   u.rate = 0.82;
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
   glowWord();
-  addStars(1, sayBtn);
+  addStars(1, document.getElementById("sayBtn"));
   showToast("Great saying!");
 });
 
@@ -391,11 +375,13 @@ canvas.addEventListener("pointermove", e=>{
 canvas.addEventListener("pointerup", ()=>drawing=false);
 canvas.addEventListener("pointerleave", ()=>drawing=false);
 
-clearBtn.addEventListener("click", ()=>{
+document.getElementById("clearBtn").addEventListener("click", ()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  addStars(1, clearBtn);
+  addStars(1, document.getElementById("clearBtn"));
   showToast("Clean slate!");
 });
+
+render();
 </script>
 </body>
 </html>

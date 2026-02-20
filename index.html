@@ -1,500 +1,73 @@
-<script>
-window.onerror = function (msg, url, line, col, error) {
-  document.body.innerHTML =
-    '<div style="padding:16px;background:#b00020;color:white;font-family:system-ui">' +
-    '<h2>JavaScript Error</h2>' +
-    '<p><strong>Message:</strong> ' + msg + '</p>' +
-    '<p><strong>Line:</strong> ' + line + '</p>' +
-    '<p><strong>Column:</strong> ' + col + '</p>' +
-    '<p><strong>Source:</strong> ' + url + '</p>' +
-    '</div>';
-  return true;
-};
-</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>English Kids</title>
-
+<title>English Kids - Tap Test</title>
 <style>
-:root{
-  --blue:#4a6cf7;
-  --pink:#ff4fa3;
-  --yellow:#ffd54a;
-  --mint:#2dd4bf;
-  --bg1:#ffecd2;
-  --bg2:#fcb69f;
-  --card:#ffffffee;
-}
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, "Arial Rounded MT Bold", Arial, sans-serif;
-  background: linear-gradient(135deg,var(--bg1),var(--bg2));
-  color:#223;
-  text-align:center;
-}
-
-/* Header */
-header{
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: linear-gradient(90deg,var(--blue),#7b5cff);
-  color:#fff;
-  padding:12px;
-  font-size:20px;
-  font-weight:900;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
-}
-.header-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  max-width:560px;
-  margin:0 auto;
-}
-.app-title{display:flex; align-items:center; gap:8px;}
-.pills{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-/* Star meter */
-.star-meter{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  background: rgba(255,255,255,.18);
-  border: 2px solid rgba(255,255,255,.25);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 16px;
-  font-weight: 1000;
-  backdrop-filter: blur(6px);
-}
-.star-meter .big{font-size:18px;}
-.star-meter button{
-  padding:8px 10px;
-  font-size:14px;
-  border-radius: 999px;
-  box-shadow:none;
-}
-.star-meter button:active{transform:scale(.98);}
-
-/* Music toggle pill */
-.music-pill{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  background: rgba(255,255,255,.18);
-  border: 2px solid rgba(255,255,255,.25);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 14px;
-  font-weight: 1000;
-  backdrop-filter: blur(6px);
-}
-.music-pill button{
-  padding:8px 10px;
-  font-size:14px;
-  border-radius:999px;
-  box-shadow:none;
-}
-.music-pill button:active{transform:scale(.98);}
-
-section{
-  max-width:520px;
-  margin:0 auto;
-  padding:18px;
-}
-
-.card{
-  background:var(--card);
-  border-radius:18px;
-  padding:18px;
-  margin-bottom:18px;
-  box-shadow:0 10px 24px rgba(0,0,0,.15);
-}
-
-h2{ margin:0 0 10px; font-size:20px; }
-
-img{
-  width:220px;
-  height:220px;
-  border-radius:16px;
-  background:#fff;
-  box-shadow:0 10px 20px rgba(0,0,0,.15);
-}
-
-.word{
-  font-size:34px;
-  font-weight:1000;
-  letter-spacing:2px;
-  margin:10px 0;
-}
-.hidden{ letter-spacing:6px; }
-
-.row{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-}
-
-button{
-  border:none;
-  border-radius:16px;
-  padding:14px 18px;
-  font-size:18px;
-  font-weight:900;
-  cursor:pointer;
-  box-shadow:0 8px 16px rgba(0,0,0,.18);
-  -webkit-tap-highlight-color: transparent;
-}
-button:active{transform:scale(.97);}
-
-.btn-blue{background:linear-gradient(135deg,var(--blue),#7b5cff);color:#fff}
-.btn-pink{background:linear-gradient(135deg,var(--pink),#ff85c8);color:#fff}
-.btn-yellow{background:linear-gradient(135deg,var(--yellow),#ffe98a);color:#5a3b00}
-.btn-mint{background:linear-gradient(135deg,var(--mint),#7ff3e7);color:#064}
-
-#draw{
-  width:320px;
-  height:210px;
-  background:#fff;
-  border-radius:16px;
-  border:3px solid #00000010;
-  touch-action:none;
-  box-shadow: inset 0 0 0 2px #4a6cf720;
-}
-
-/* FX layer */
-#fx-layer{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index: 9999;
-}
-.fx-star{
-  position:absolute;
-  font-size: 32px;
-  font-weight: 1000;
-  filter: drop-shadow(0 10px 10px rgba(0,0,0,.18));
-  animation: floatUp .9s ease-out forwards;
-}
-@keyframes floatUp{
-  0%   { transform: translate(-50%, -50%) scale(.7) rotate(-8deg); opacity:0; }
-  20%  { opacity:1; }
-  60%  { transform: translate(-50%, -90px) scale(1.1) rotate(6deg); }
-  100% { transform: translate(-50%, -140px) scale(.9) rotate(0deg); opacity:0; }
-}
-.pop{ animation: pop .22s ease-out; }
-@keyframes pop{
-  0%{transform:scale(1)}
-  60%{transform:scale(1.18)}
-  100%{transform:scale(1)}
-}
-.small-note{
-  font-size:13px;
-  opacity:.78;
-  font-weight:700;
-  margin-top:8px;
-}
+  body{margin:0;font-family:system-ui,-apple-system,Arial,sans-serif;background:#f4f6fb;color:#111;text-align:center}
+  header{background:#4a6cf7;color:#fff;padding:14px;font-size:20px;font-weight:900}
+  .card{background:#fff;margin:16px;padding:16px;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+  #jsBadge{display:inline-block;padding:8px 12px;border-radius:999px;font-weight:900;background:#bbb;color:#111}
+  .ok{background:#16a34a !important;color:#fff !important}
+  button{border:0;border-radius:14px;padding:14px 18px;font-size:18px;font-weight:900;background:#ff4fa3;color:#fff}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
+  #pad{height:180px;border:2px dashed #4a6cf7;border-radius:14px;display:flex;align-items:center;justify-content:center;user-select:none}
 </style>
 </head>
-
 <body>
+<header>Tap Test</header>
 
-<header>
-  <div class="header-row">
-    <div class="app-title">🌈 English Kids</div>
+<div class="card">
+  <div id="jsBadge">JS: NOT CONFIRMED</div>
+  <p class="mono" id="urlLine"></p>
+</div>
 
-    <div class="pills">
-      <div class="music-pill" title="Background music">
-        🎵 <span id="musicState">OFF</span>
-        <button class="btn-mint" id="musicBtn">Music</button>
-      </div>
+<div class="card">
+  <h2>1) Tap anywhere in the blue box</h2>
+  <div id="pad">Tap here</div>
+  <p class="mono" id="tapLine">taps: 0 | x: - | y: -</p>
+</div>
 
-      <div class="star-meter" aria-label="Stars earned">
-        <span class="big">⭐</span>
-        <span id="starCount">0</span>
-        <button class="btn-yellow" id="resetStarsBtn" title="Reset stars">Reset</button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<div id="fx-layer"></div>
-
-<section>
-
-  <div class="card">
-    <h2>👀 Look</h2>
-    <img id="pic" src="https://placehold.co/220x220?text=DOG" alt="Dog">
-    <div class="small-note">Tip: tap “Random” to change the picture!</div>
-  </div>
-
-  <div class="card">
-    <h2>🤔 Guess</h2>
-    <div id="word" class="word hidden">•••</div>
-    <div class="row">
-      <button class="btn-yellow" id="revealBtn">Reveal ⭐</button>
-      <button class="btn-mint" id="randomBtn">Random 🎲</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>🗣️ Say</h2>
-    <div class="row">
-      <button class="btn-blue" id="sayBtn">Say it 🔊</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>✍️ Write</h2>
-    <canvas id="draw"></canvas><br><br>
-    <button class="btn-pink" id="clearBtn">Clear ✨</button>
-    <div class="small-note">Draw the word’s first letter!</div>
-  </div>
-
-</section>
+<div class="card">
+  <h2>2) Tap this button</h2>
+  <button id="btn">Tap Me</button>
+  <p class="mono" id="btnLine">button taps: 0</p>
+</div>
 
 <script>
-/* ---------------------------
-   Lessons
---------------------------- */
-const lessons = [
-  { word:"DOG",  say:"dog",  img:"https://placehold.co/220x220?text=DOG"  },
-  { word:"CAT",  say:"cat",  img:"https://placehold.co/220x220?text=CAT"  },
-  { word:"BALL", say:"ball", img:"https://placehold.co/220x220?text=BALL" },
-  { word:"BOOK", say:"book", img:"https://placehold.co/220x220?text=BOOK" }
-];
+  // Prove JS ran
+  const badge = document.getElementById('jsBadge');
+  badge.textContent = 'JS: RUNNING ✅';
+  badge.classList.add('ok');
 
-let i = 0;
-let shown = false;
+  // Show the actual URL Safari loaded (important!)
+  document.getElementById('urlLine').textContent = 'Loaded URL: ' + location.href;
 
-const pic = document.getElementById("pic");
-const wordEl = document.getElementById("word");
+  let taps = 0;
+  const tapLine = document.getElementById('tapLine');
+  const pad = document.getElementById('pad');
 
-/* ---------------------------
-   Stars (saved)
---------------------------- */
-const STAR_KEY = "englishkids_stars_v1";
-let stars = Number(localStorage.getItem(STAR_KEY) || "0");
-
-const starCountEl = document.getElementById("starCount");
-const starMeterEl = document.querySelector(".star-meter");
-
-function renderStars(){ starCountEl.textContent = String(stars); }
-renderStars();
-
-function addStars(n=1, x=null, y=null){
-  stars += n;
-  localStorage.setItem(STAR_KEY, String(stars));
-  renderStars();
-
-  starMeterEl.classList.remove("pop");
-  void starMeterEl.offsetWidth;
-  starMeterEl.classList.add("pop");
-
-  if (x != null && y != null) spawnStarFX(x, y, n);
-
-  rewardChime();
-}
-
-document.getElementById("resetStarsBtn").addEventListener("click", ()=>{
-  stars = 0;
-  localStorage.setItem(STAR_KEY, "0");
-  renderStars();
-  clickSound(450);
-});
-
-/* ---------------------------
-   Render
---------------------------- */
-function render(){
-  const L = lessons[i];
-  pic.src = L.img;
-  pic.alt = L.word;
-  wordEl.textContent = shown ? L.word : "•••";
-}
-render();
-
-/* ---------------------------
-   Audio (clicks + rewards + MUSIC)
---------------------------- */
-let audioCtx = null;
-function ensureAudio(){
-  if (!audioCtx){
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AC();
+  function upd(e){
+    taps++;
+    const x = Math.round(e.clientX);
+    const y = Math.round(e.clientY);
+    tapLine.textContent = `taps: ${taps} | x: ${x} | y: ${y}`;
+    pad.textContent = 'Tapped ✅';
   }
-  if (audioCtx.state === "suspended") audioCtx.resume();
-}
 
-function tone(freq, duration=0.12, gain=0.12, type="sine"){
-  ensureAudio();
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.type = type;
-  o.frequency.value = freq;
-  o.connect(g);
-  g.connect(audioCtx.destination);
-  g.gain.value = 0.0001;
-  g.gain.exponentialRampToValueAtTime(gain, audioCtx.currentTime + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-  o.start();
-  o.stop(audioCtx.currentTime + duration + 0.02);
-}
-function clickSound(freq=600){ tone(freq, 0.09, 0.10, "triangle"); }
-function rewardChime(){
-  tone(880, 0.10, 0.12, "sine");
-  setTimeout(()=>tone(1175, 0.12, 0.10, "sine"), 70);
-}
+  // Pointer events + touch events (belt + suspenders)
+  pad.addEventListener('pointerdown', upd);
+  pad.addEventListener('touchstart', (e)=>upd(e.touches[0]), {passive:true});
+  pad.addEventListener('click', (e)=>upd(e));
 
-/* ---- Background music (C: starts only after user taps Music) ---- */
-const MUSIC_KEY = "englishkids_music_on_v1";
-let musicOn = (localStorage.getItem(MUSIC_KEY) === "1"); // remember preference
-let musicNodes = null; // {osc1, osc2, gain, lfo, lfoGain, filter}
-const musicStateEl = document.getElementById("musicState");
-const musicBtn = document.getElementById("musicBtn");
-
-function updateMusicUI(){
-  musicStateEl.textContent = musicOn ? "ON" : "OFF";
-}
-updateMusicUI();
-
-// Create a soft looping “pad” (no files)
-function startMusic(){
-  ensureAudio();
-  if (musicNodes) return;
-
-  const gain = audioCtx.createGain();
-  gain.gain.value = 0.0; // fade in
-  gain.connect(audioCtx.destination);
-
-  const filter = audioCtx.createBiquadFilter();
-  filter.type = "lowpass";
-  filter.frequency.value = 900;
-  filter.Q.value = 0.7;
-  filter.connect(gain);
-
-  // Two oscillators for a gentle chord feel
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  osc1.type = "sine";
-  osc2.type = "triangle";
-  osc1.frequency.value = 220;   // A3
-  osc2.frequency.value = 277.18; // C#4-ish (sweet)
-  osc1.connect(filter);
-  osc2.connect(filter);
-
-  // Slow LFO for gentle movement
-  const lfo = audioCtx.createOscillator();
-  const lfoGain = audioCtx.createGain();
-  lfo.type = "sine";
-  lfo.frequency.value = 0.10; // very slow
-  lfoGain.gain.value = 35;    // mod amount
-  lfo.connect(lfoGain);
-  lfoGain.connect(filter.frequency);
-
-  osc1.start(); osc2.start(); lfo.start();
-
-  // Fade in
-  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.8);
-
-  musicNodes = {osc1, osc2, gain, filter, lfo, lfoGain};
-}
-
-function stopMusic(){
-  if (!musicNodes) return;
-  const {osc1, osc2, gain, lfo} = musicNodes;
-
-  // Fade out quickly
-  const now = audioCtx.currentTime;
-  gain.gain.cancelScheduledValues(now);
-  gain.gain.setValueAtTime(Math.max(0.0001, gain.gain.value), now);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-
-  setTimeout(()=>{
-    try{ osc1.stop(); }catch{}
-    try{ osc2.stop(); }catch{}
-    try{ lfo.stop(); }catch{}
-    musicNodes = null;
-  }, 420);
-}
-
-function setMusic(on){
-  musicOn = on;
-  localStorage.setItem(MUSIC_KEY, musicOn ? "1" : "0");
-  updateMusicUI();
-  if (musicOn) startMusic();
-  else stopMusic();
-}
-
-musicBtn.addEventListener("click", ()=>{
-  // This is the required "first tap" that unlocks audio on iOS
-  ensureAudio();
-  clickSound(520);
-  setMusic(!musicOn);
-});
-
-// If the user previously set music ON, we still must wait for a user gesture
-// to start it. We'll start it after their first interaction (any pointerdown).
-let autoStartArmed = musicOn;
-window.addEventListener("pointerdown", ()=>{
-  if (autoStartArmed){
-    ensureAudio();
-    startMusic();
-    autoStartArmed = false;
-  }
-}, {once:false});
-
-/* ---------------------------
-   Floating star FX
---------------------------- */
-const fxLayer = document.getElementById("fx-layer");
-function spawnStarFX(x, y, count=1){
-  const n = Math.min(3, Math.max(1, count));
-  for(let k=0;k<n;k++){
-    const s = document.createElement("div");
-    s.className = "fx-star";
-    s.textContent = "⭐";
-    const jitterX = (Math.random()*28 - 14);
-    const jitterY = (Math.random()*18 - 9);
-    s.style.left = (x + jitterX) + "px";
-    s.style.top  = (y + jitterY) + "px";
-    fxLayer.appendChild(s);
-    setTimeout(()=>s.remove(), 950);
-  }
-}
-function centerOf(el){
-  const r = el.getBoundingClientRect();
-  return { x: r.left + r.width/2, y: r.top + r.height/2 };
-}
-
-/* ---------------------------
-   Buttons
---------------------------- */
-const revealBtn = document.getElementById("revealBtn");
-const randomBtn = document.getElementById("randomBtn");
-const sayBtn    = document.getElementById("sayBtn");
-const clearBtn  = document.getElementById("clearBtn");
-
-revealBtn.addEventListener("click", ()=>{
-  clickSound(700);
-  shown = true;
-  render();
-  const c = centerOf(revealBtn);
-  addStars(2, c.x, c.y);
-});
-
-randomBtn.addEventListener("click", ()=>{
-  click
+  let btnTaps = 0;
+  const btnLine = document.getElementById('btnLine');
+  document.getElementById('btn').addEventListener('click', ()=>{
+    btnTaps++;
+    btnLine.textContent = 'button taps: ' + btnTaps;
+    document.body.style.background = btnTaps % 2 ? '#e0f2fe' : '#f4f6fb';
+  });
+</script>
+</body>
+</html>

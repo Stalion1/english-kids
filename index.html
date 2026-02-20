@@ -6,151 +6,182 @@
 <title>English Kids</title>
 
 <style>
-  body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #f7f9fc;
-    color: #222;
-    display: flex;
-    justify-content: center;
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+    background:#f7f9fc;
+    color:#222;
+    display:flex;
+    justify-content:center;
+  }
+  .app{
+    width:100%;
+    max-width:420px;
+    padding:16px 20px 28px;
   }
 
-  .app {
-    width: 100%;
-    max-width: 420px;
-    padding: 20px;
+  /* --- TOP HUD (Stars / Level / Step + progress) --- */
+  .hud{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(247,249,252,0.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    padding:10px 10px 14px;
+    margin:0 0 12px;
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    border-radius:14px;
+  }
+  .hud-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .badge{
+    background:#fff;
+    border-radius:999px;
+    padding:8px 12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    font-weight:800;
+    font-size:14px;
+    white-space:nowrap;
+  }
+  .progress{
+    margin-top:10px;
+    height:10px;
+    background:rgba(0,0,0,0.08);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress > div{
+    height:100%;
+    width:0%;
+    background:#4a6cff;
+    border-radius:999px;
+    transition:width 250ms ease;
   }
 
-  h1 {
-    margin: 6px 0 14px;
-    font-size: 22px;
-    font-weight: 800;
-    text-align: center;
+  h2{ margin:14px 0 6px; font-size:20px; }
+
+  .card{
+    background:#fff;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:20px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
   }
 
-  h2 {
-    margin: 14px 0 6px;
-    font-size: 20px;
+  .image-box{
+    height:180px;
+    border-radius:12px;
+    background:#e9eef6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:64px;
   }
 
-  .card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  .choices{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:10px;
+  }
+  .choice{
+    padding:14px;
+    border-radius:12px;
+    background:#eef2f8;
+    text-align:center;
+    font-size:20px;
+    font-weight:800;
+    border:2px solid transparent;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .choice:active{ transform:scale(0.98); }
+  .choice.correct{ border-color:rgba(0,160,80,0.55); background:rgba(0,160,80,0.12); }
+  .choice.wrong{ border-color:rgba(220,50,50,0.55); background:rgba(220,50,50,0.10); }
+
+  .say-word{
+    font-size:28px;
+    font-weight:900;
+    text-align:center;
+    margin:10px 0 12px;
+    letter-spacing:0.5px;
   }
 
-  .image-box {
-    height: 180px;
-    border-radius: 12px;
-    background: #e9eef6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 64px;
+  .btn{
+    padding:12px 14px;
+    width:100%;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+    font-weight:800;
+    background:#4a6cff;
+    color:#fff;
+    cursor:pointer;
+  }
+  .btn:active{ transform:scale(0.99); }
+  .btn.secondary{ background:#eef2f8; color:#222; }
+
+  .trace-box{
+    position:relative;
+    height:140px;
+    border-radius:14px;
+    background:#fafbfe;
+    border:2px solid #dde3ee;
+    margin-top:10px;
+    overflow:hidden;
   }
 
-  .choices {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 10px;
+  /* --- TRACE GUIDE: EXTRA LIGHT + THIN --- */
+  .trace-word{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:64px;
+    font-weight:900;
+    letter-spacing:1px;
+    color:rgba(0,0,0,0.03);      /* super faint fill */
+    opacity:0.35;               /* extra fade */
+    pointer-events:none;
+    user-select:none;
+    -webkit-text-stroke:1px rgba(0,0,0,0.05); /* thin outline */
+    text-shadow:none;
   }
 
-  /* make choices actually feel like buttons */
-  .choice {
-    padding: 14px;
-    border-radius: 12px;
-    background: #eef2f8;
-    text-align: center;
-    font-size: 20px;
-    font-weight: 700;
-    border: 2px solid transparent;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .choice:active { transform: scale(0.98); }
-  .choice.correct { border-color: rgba(0, 160, 80, 0.55); background: rgba(0,160,80,0.12); }
-  .choice.wrong   { border-color: rgba(220, 50, 50, 0.55); background: rgba(220,50,50,0.10); }
-
-  .say-word {
-    font-size: 28px;
-    font-weight: 900;
-    text-align: center;
-    margin: 10px 0 12px;
-    letter-spacing: 0.5px;
+  canvas{
+    position:absolute;
+    inset:0;
+    touch-action:none;
   }
 
-  .btn {
-    padding: 12px 14px;
-    width: 100%;
-    border-radius: 12px;
-    border: none;
-    font-size: 16px;
-    font-weight: 700;
-    background: #4a6cff;
-    color: #fff;
-    cursor: pointer;
-  }
-  .btn:active { transform: scale(0.99); }
-
-  .trace-box {
-    position: relative;
-    height: 140px;
-    border-radius: 14px;
-    background: #fafbfe;
-    border: 2px solid #dde3ee;
-    margin-top: 10px;
-    overflow: hidden;
-  }
-
-  /* GHOST TRACE WORD — MUCH LIGHTER */
-  .trace-word {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 64px;
-    font-weight: 800;
-    color: rgba(0,0,0,0.05);  /* lighter */
-    opacity: 0.55;           /* extra softening */
-    pointer-events: none;
-    user-select: none;
-    letter-spacing: 1px;
-  }
-
-  /* Optional: “thin guide lines” effect using a subtle stroke */
-  .trace-word {
-    -webkit-text-stroke: 1px rgba(0,0,0,0.06); /* thin + faint */
-    text-shadow: none;
-  }
-
-  canvas {
-    position: absolute;
-    inset: 0;
-    touch-action: none;
-  }
-
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
-  .secondary {
-    background: #eef2f8;
-    color: #222;
+  .row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:10px;
   }
 </style>
 </head>
 
 <body>
 <div class="app">
-  <h1>English Kids</h1>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-row">
+      <div class="badge" id="starsBadge">⭐ Stars: 0</div>
+      <div class="badge" id="levelBadge">Level 1</div>
+      <div class="badge" id="stepBadge">1 / 1</div>
+    </div>
+    <div class="progress"><div id="progressFill"></div></div>
+  </div>
 
   <!-- LOOK -->
   <div class="card">
@@ -187,12 +218,51 @@
 </div>
 
 <script>
-  // --- Lesson data (easy to expand later) ---
+  // Lesson data (expand anytime)
   const lesson = [
-    { word: "DOG", emoji: "🐶", options: ["DOG","CAT","BIRD","FISH"] },
+    { word: "DOG",  emoji: "🐶", options: ["DOG","CAT","BIRD","FISH"] },
+    { word: "CAT",  emoji: "🐱", options: ["DOG","CAT","BIRD","FISH"] },
+    { word: "BIRD", emoji: "🐦", options: ["DOG","CAT","BIRD","FISH"] },
+    { word: "FISH", emoji: "🐟", options: ["DOG","CAT","BIRD","FISH"] }
   ];
 
   let idx = 0;
+  let stars = 0;
+  let level = 1;
+
+  function updateHud() {
+    document.getElementById("starsBadge").textContent = `⭐ Stars: ${stars}`;
+    document.getElementById("levelBadge").textContent = `Level ${level}`;
+    document.getElementById("stepBadge").textContent = `${idx + 1} / ${lesson.length}`;
+    const pct = lesson.length ? ((idx + 1) / lesson.length) * 100 : 0;
+    document.getElementById("progressFill").style.width = `${pct}%`;
+  }
+
+  function clearChoiceStyles() {
+    document.querySelectorAll(".choice").forEach(el => {
+      el.classList.remove("correct","wrong");
+    });
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  }
+
+  function checkChoice(button, correct) {
+    clearChoiceStyles();
+    button.classList.add(correct ? "correct" : "wrong");
+    if (correct) {
+      stars += 1;
+      if (stars % 10 === 0) level += 1;   // every 10 stars -> next level
+      updateHud();
+      speak(document.getElementById("word").textContent);
+    }
+  }
 
   function render() {
     const item = lesson[idx];
@@ -202,7 +272,6 @@
 
     const choicesEl = document.getElementById("choices");
     choicesEl.innerHTML = "";
-
     item.options.forEach(opt => {
       const b = document.createElement("button");
       b.className = "choice";
@@ -214,31 +283,10 @@
 
     clearChoiceStyles();
     clearCanvas();
+    updateHud();
   }
 
-  function clearChoiceStyles() {
-    document.querySelectorAll(".choice").forEach(el => {
-      el.classList.remove("correct","wrong");
-    });
-  }
-
-  function checkChoice(button, correct) {
-    clearChoiceStyles();
-    button.classList.add(correct ? "correct" : "wrong");
-    // Optional: auto-say on correct
-    if (correct) speak(document.getElementById("word").textContent);
-  }
-
-  // --- Speech (Say button) ---
-  function speak(text) {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
-    u.rate = 0.95;
-    window.speechSynthesis.speak(u);
-  }
-
+  // Buttons
   document.getElementById("sayBtn").addEventListener("click", () => {
     speak(document.getElementById("word").textContent);
   });
@@ -248,7 +296,7 @@
     render();
   });
 
-  // --- Canvas drawing (iPhone-friendly) ---
+  // Canvas drawing (iPhone-friendly)
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
   let drawing = false;
@@ -267,15 +315,13 @@
 
   function start(e) {
     drawing = true;
-    ctx.beginPath();     // prevents first-stroke jump
+    ctx.beginPath();
     draw(e);
   }
-
   function end() {
     drawing = false;
     ctx.beginPath();
   }
-
   function draw(e) {
     if (!drawing) return;
     const rect = canvas.getBoundingClientRect();
@@ -288,12 +334,10 @@
     ctx.moveTo(x, y);
   }
 
-  // Mouse
   canvas.addEventListener("mousedown", start);
   canvas.addEventListener("mouseup", end);
   canvas.addEventListener("mousemove", draw);
 
-  // Touch (prevent scrolling)
   canvas.addEventListener("touchstart", (e) => { e.preventDefault(); start(e); }, { passive:false });
   canvas.addEventListener("touchmove",  (e) => { e.preventDefault(); draw(e);  }, { passive:false });
   canvas.addEventListener("touchend",   (e) => { e.preventDefault(); end(e);   }, { passive:false });
@@ -301,7 +345,6 @@
   function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-
   document.getElementById("clearBtn").addEventListener("click", clearCanvas);
 
   // Start

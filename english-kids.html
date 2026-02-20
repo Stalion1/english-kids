@@ -1,0 +1,414 @@
+english-kids.html
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>English Kids Lesson</title>
+  <style>
+    :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background:#f6f7fb; }
+    header { padding: 14px 16px; background:#111827; color:#fff; font-weight:700; }
+    .wrap { padding: 14px 14px 90px; max-width: 720px; margin: 0 auto; }
+    .card { background:#fff; border-radius:16px; padding:14px; box-shadow: 0 6px 20px rgba(0,0,0,.06); margin: 12px 0; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .big { font-size: 22px; font-weight: 800; }
+    .muted { color:#6b7280; }
+    img { width:100%; border-radius:14px; background:#e5e7eb; }
+    button {
+      border:0; border-radius:14px; padding:14px 16px;
+      font-size:18px; font-weight:700; background:#111827; color:#fff;
+      flex: 1; min-width: 140px;
+    }
+    button.secondary { background:#e5e7eb; color:#111827; }
+    button.good { background:#16a34a; }
+    button.bad { background:#dc2626; }
+    .choices button { background:#2563eb; }
+    .choices button.secondary { background:#e5e7eb; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#eef2ff; color:#3730a3; font-weight:700; }
+    .bottomBar {
+      position: fixed; left:0; right:0; bottom:0;
+      background: rgba(246,247,251,.92); backdrop-filter: blur(8px);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      border-top: 1px solid #e5e7eb;
+    }
+    .bottomBar .row { max-width: 720px; margin:0 auto; }
+    canvas {
+      width:100%; height: 220px; border-radius:16px;
+      background: #fff; border: 2px dashed #cbd5e1; touch-action: none;
+    }
+    .confetti { font-size: 28px; line-height: 1.2; display:none; }
+    .confetti.show { display:block; animation: pop .8s ease-out; }
+    @keyframes pop { from { transform: scale(.7); opacity:.2; } to { transform: scale(1); opacity:1; } }
+    input[type="text"]{
+      width:100%; font-size:20px; padding:12px 14px; border-radius:14px;
+      border:1px solid #e5e7eb; outline:none;
+    }
+    video { width:100%; border-radius:16px; display:none; margin-top:10px; }
+    .tiny { font-size: 14px; }
+  </style>
+</head>
+<body>
+<header>English Lesson • Picture → Guess → Say → Write</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <div class="big" id="titleWord">Word</div>
+        <div class="muted">Step: <span class="pill" id="stepPill">Picture</span> • Progress: <span id="prog">0/0</span></div>
+      </div>
+      <div class="pill" id="scorePill">⭐ 0</div>
+    </div>
+  </div>
+
+  <div class="card" id="pictureCard">
+    <div class="big">1) Picture</div>
+    <div class="muted">Look. What is it?</div>
+    <img id="pic" alt="picture" />
+  </div>
+
+  <div class="card" id="guessCard" style="display:none;">
+    <div class="big">2) Guess</div>
+    <div class="muted">Tap the right word.</div>
+    <div class="row choices" id="choices"></div>
+  </div>
+
+  <div class="card" id="sayCard" style="display:none;">
+    <div class="big">3) Say</div>
+    <div class="muted">Press play, then say it 3 times.</div>
+    <div class="row">
+      <button id="playAudio">🔊 Play</button>
+      <button class="secondary" id="doneSaying">✅ I said it</button>
+    </div>
+    <div class="tiny muted">Tip: You can record yourself later; this version keeps it simple.</div>
+  </div>
+
+  <div class="card" id="writeCard" style="display:none;">
+    <div class="big">4) Write</div>
+    <div class="muted">Write it with your finger, then type it.</div>
+    <canvas id="pad" width="900" height="420"></canvas>
+    <div class="row" style="margin-top:10px;">
+      <button class="secondary" id="clearPad">🧽 Clear</button>
+      <button id="savePad">💾 Save</button>
+    </div>
+    <div style="margin-top:10px;">
+      <input id="typeBox" type="text" placeholder="Type the word here (example: dog)" autocomplete="off" />
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <button id="checkSpelling">✅ Check</button>
+      <button class="secondary" id="skipWrite">➡️ Skip</button>
+    </div>
+
+    <div id="reward" class="confetti">🎉🎉 Great job! 🎉🎉</div>
+    <video id="rewardVideo" controls playsinline></video>
+  </div>
+
+  <div class="card" id="reviewCard" style="display:none;">
+    <div class="big">Review</div>
+    <div class="muted">You finished this word.</div>
+    <div class="row">
+      <button class="good" id="nextWord">➡️ Next word</button>
+      <button class="secondary" id="restartWord">🔁 Repeat</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottomBar">
+  <div class="row">
+    <button class="secondary" id="prevStep">⬅️ Back</button>
+    <button id="nextStep">Next ➡️</button>
+  </div>
+</div>
+
+<script>
+/** ===== LESSON DATA (edit this) =====
+ * Use direct image URLs that work in Safari.
+ * audio can be empty; rewardVideo optional.
+ */
+const LESSON = [
+  {
+    word: "dog",
+    image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1200&q=60",
+    audio: "", // put mp3 URL if you have one
+    rewardVideo: "" // put mp4 URL if you have one
+  },
+  {
+    word: "cat",
+    image: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1200&q=60",
+    audio: "",
+    rewardVideo: ""
+  },
+  {
+    word: "apple",
+    image: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=1200&q=60",
+    audio: "",
+    rewardVideo: ""
+  }
+];
+
+const STEP = { PICTURE:0, GUESS:1, SAY:2, WRITE:3, REVIEW:4 };
+let state = {
+  idx: 0,
+  step: STEP.PICTURE,
+  stars: 0,
+  done: {} // word -> true
+};
+
+const els = {
+  titleWord: document.getElementById("titleWord"),
+  stepPill: document.getElementById("stepPill"),
+  prog: document.getElementById("prog"),
+  scorePill: document.getElementById("scorePill"),
+  pic: document.getElementById("pic"),
+
+  pictureCard: document.getElementById("pictureCard"),
+  guessCard: document.getElementById("guessCard"),
+  sayCard: document.getElementById("sayCard"),
+  writeCard: document.getElementById("writeCard"),
+  reviewCard: document.getElementById("reviewCard"),
+
+  choices: document.getElementById("choices"),
+  playAudio: document.getElementById("playAudio"),
+  doneSaying: document.getElementById("doneSaying"),
+
+  pad: document.getElementById("pad"),
+  clearPad: document.getElementById("clearPad"),
+  savePad: document.getElementById("savePad"),
+  typeBox: document.getElementById("typeBox"),
+  checkSpelling: document.getElementById("checkSpelling"),
+  skipWrite: document.getElementById("skipWrite"),
+  reward: document.getElementById("reward"),
+  rewardVideo: document.getElementById("rewardVideo"),
+
+  prevStep: document.getElementById("prevStep"),
+  nextStep: document.getElementById("nextStep"),
+
+  nextWord: document.getElementById("nextWord"),
+  restartWord: document.getElementById("restartWord"),
+};
+
+function loadSaved(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("kidsLessonState") || "{}");
+    if(saved && typeof saved === "object"){
+      state = {...state, ...saved};
+    }
+  }catch{}
+}
+function saveState(){
+  localStorage.setItem("kidsLessonState", JSON.stringify(state));
+}
+
+function current(){ return LESSON[state.idx]; }
+
+function setStep(step){
+  state.step = step;
+  saveState();
+  render();
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function render(){
+  const item = current();
+  els.titleWord.textContent = item.word.toUpperCase();
+  els.scorePill.textContent = `⭐ ${state.stars}`;
+  const doneCount = Object.keys(state.done).length;
+  els.prog.textContent = `${doneCount}/${LESSON.length}`;
+
+  // Step pill label
+  const stepLabel = ["Picture","Guess","Say","Write","Review"][state.step];
+  els.stepPill.textContent = stepLabel;
+
+  // Cards visibility
+  els.pictureCard.style.display = (state.step===STEP.PICTURE) ? "" : "none";
+  els.guessCard.style.display   = (state.step===STEP.GUESS) ? "" : "none";
+  els.sayCard.style.display     = (state.step===STEP.SAY) ? "" : "none";
+  els.writeCard.style.display   = (state.step===STEP.WRITE) ? "" : "none";
+  els.reviewCard.style.display  = (state.step===STEP.REVIEW) ? "" : "none";
+
+  // Picture
+  els.pic.src = item.image;
+
+  // Guess choices
+  if(state.step===STEP.GUESS){
+    els.choices.innerHTML = "";
+    const words = LESSON.map(x=>x.word);
+    const correct = item.word;
+    const distractors = shuffle(words.filter(w=>w!==correct)).slice(0,3);
+    const options = shuffle([correct, ...distractors]);
+    options.forEach(opt=>{
+      const b = document.createElement("button");
+      b.textContent = opt.toUpperCase();
+      b.onclick = ()=> {
+        if(opt===correct){
+          state.stars += 1;
+          flashReward(false);
+          setStep(STEP.SAY);
+        } else {
+          b.classList.add("bad");
+          setTimeout(()=>b.classList.remove("bad"), 350);
+        }
+      };
+      els.choices.appendChild(b);
+    });
+  }
+
+  // Say audio
+  els.playAudio.disabled = !item.audio;
+  els.reward.classList.remove("show");
+  els.rewardVideo.style.display = "none";
+  els.rewardVideo.pause();
+  els.rewardVideo.removeAttribute("src");
+  els.typeBox.value = "";
+}
+
+function flashReward(showVideo){
+  els.reward.classList.add("show");
+  setTimeout(()=>els.reward.classList.remove("show"), 900);
+  const item = current();
+  if(showVideo && item.rewardVideo){
+    els.rewardVideo.src = item.rewardVideo;
+    els.rewardVideo.style.display = "block";
+    els.rewardVideo.play().catch(()=>{});
+  }
+}
+
+function nextWord(){
+  state.done[current().word] = true;
+  state.idx = (state.idx + 1) % LESSON.length;
+  state.step = STEP.PICTURE;
+  saveState();
+  clearCanvas();
+  render();
+}
+
+function restartWord(){
+  state.step = STEP.PICTURE;
+  saveState();
+  clearCanvas();
+  render();
+}
+
+// Navigation buttons
+els.prevStep.onclick = ()=>{
+  if(state.step>STEP.PICTURE) setStep(state.step-1);
+};
+els.nextStep.onclick = ()=>{
+  if(state.step<STEP.WRITE) setStep(state.step+1);
+  else if(state.step===STEP.WRITE) setStep(STEP.REVIEW);
+};
+
+// Say step buttons
+els.playAudio.onclick = ()=>{
+  const item = current();
+  if(!item.audio) return;
+  const a = new Audio(item.audio);
+  a.play().catch(()=>{});
+};
+els.doneSaying.onclick = ()=> setStep(STEP.WRITE);
+
+// Write step
+els.clearPad.onclick = ()=> clearCanvas();
+els.savePad.onclick = ()=> {
+  try{
+    const dataUrl = els.pad.toDataURL("image/png");
+    // store last writing for current word
+    const key = "writing_" + current().word;
+    localStorage.setItem(key, dataUrl);
+    state.stars += 1;
+    saveState();
+    flashReward(false);
+  }catch{}
+};
+
+els.checkSpelling.onclick = ()=>{
+  const typed = (els.typeBox.value || "").trim().toLowerCase();
+  const correct = current().word.toLowerCase();
+  if(typed === correct){
+    state.stars += 2;
+    saveState();
+    flashReward(true);
+    setTimeout(()=> setStep(STEP.REVIEW), 650);
+  } else {
+    els.typeBox.style.borderColor = "#dc2626";
+    setTimeout(()=>els.typeBox.style.borderColor="#e5e7eb", 600);
+  }
+};
+
+els.skipWrite.onclick = ()=> setStep(STEP.REVIEW);
+
+// Review step
+els.nextWord.onclick = ()=> nextWord();
+els.restartWord.onclick = ()=> restartWord();
+
+/** ===== CANVAS DRAWING (finger writing) ===== */
+const ctx = els.pad.getContext("2d");
+ctx.lineWidth = 14;
+ctx.lineCap = "round";
+ctx.lineJoin = "round";
+ctx.strokeStyle = "#111827";
+
+let drawing = false;
+let last = null;
+
+function posFromEvent(e){
+  const rect = els.pad.getBoundingClientRect();
+  const t = (e.touches && e.touches[0]) ? e.touches[0] : e;
+  const x = (t.clientX - rect.left) * (els.pad.width / rect.width);
+  const y = (t.clientY - rect.top) * (els.pad.height / rect.height);
+  return {x,y};
+}
+
+function startDraw(e){
+  drawing = true;
+  last = posFromEvent(e);
+  e.preventDefault();
+}
+function moveDraw(e){
+  if(!drawing) return;
+  const p = posFromEvent(e);
+  ctx.beginPath();
+  ctx.moveTo(last.x, last.y);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  last = p;
+  e.preventDefault();
+}
+function endDraw(e){
+  drawing = false;
+  last = null;
+  e.preventDefault();
+}
+function clearCanvas(){
+  ctx.clearRect(0,0,els.pad.width, els.pad.height);
+  // faint guide line
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#111827";
+  ctx.fillRect(40, els.pad.height*0.72, els.pad.width-80, 6);
+  ctx.globalAlpha = 1;
+}
+
+els.pad.addEventListener("touchstart", startDraw, {passive:false});
+els.pad.addEventListener("touchmove", moveDraw, {passive:false});
+els.pad.addEventListener("touchend", endDraw, {passive:false});
+els.pad.addEventListener("mousedown", startDraw);
+els.pad.addEventListener("mousemove", moveDraw);
+window.addEventListener("mouseup", endDraw);
+
+// init
+loadSaved();
+clearCanvas();
+render();
+</script>
+</body>
+</html>

@@ -1,73 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>English Kids - Tap Test</title>
-<style>
-  body{margin:0;font-family:system-ui,-apple-system,Arial,sans-serif;background:#f4f6fb;color:#111;text-align:center}
-  header{background:#4a6cf7;color:#fff;padding:14px;font-size:20px;font-weight:900}
-  .card{background:#fff;margin:16px;padding:16px;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.12)}
-  #jsBadge{display:inline-block;padding:8px 12px;border-radius:999px;font-weight:900;background:#bbb;color:#111}
-  .ok{background:#16a34a !important;color:#fff !important}
-  button{border:0;border-radius:14px;padding:14px 18px;font-size:18px;font-weight:900;background:#ff4fa3;color:#fff}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
-  #pad{height:180px;border:2px dashed #4a6cf7;border-radius:14px;display:flex;align-items:center;justify-content:center;user-select:none}
-</style>
+  <meta charset="utf-8">
+  <title>TEST</title>
 </head>
-<body>
-<header>Tap Test</header>
-
-<div class="card">
-  <div id="jsBadge">JS: NOT CONFIRMED</div>
-  <p class="mono" id="urlLine"></p>
-</div>
-
-<div class="card">
-  <h2>1) Tap anywhere in the blue box</h2>
-  <div id="pad">Tap here</div>
-  <p class="mono" id="tapLine">taps: 0 | x: - | y: -</p>
-</div>
-
-<div class="card">
-  <h2>2) Tap this button</h2>
-  <button id="btn">Tap Me</button>
-  <p class="mono" id="btnLine">button taps: 0</p>
-</div>
-
-<script>
-  // Prove JS ran
-  const badge = document.getElementById('jsBadge');
-  badge.textContent = 'JS: RUNNING ✅';
-  badge.classList.add('ok');
-
-  // Show the actual URL Safari loaded (important!)
-  document.getElementById('urlLine').textContent = 'Loaded URL: ' + location.href;
-
-  let taps = 0;
-  const tapLine = document.getElementById('tapLine');
-  const pad = document.getElementById('pad');
-
-  function upd(e){
-    taps++;
-    const x = Math.round(e.clientX);
-    const y = Math.round(e.clientY);
-    tapLine.textContent = `taps: ${taps} | x: ${x} | y: ${y}`;
-    pad.textContent = 'Tapped ✅';
-  }
-
-  // Pointer events + touch events (belt + suspenders)
-  pad.addEventListener('pointerdown', upd);
-  pad.addEventListener('touchstart', (e)=>upd(e.touches[0]), {passive:true});
-  pad.addEventListener('click', (e)=>upd(e));
-
-  let btnTaps = 0;
-  const btnLine = document.getElementById('btnLine');
-  document.getElementById('btn').addEventListener('click', ()=>{
-    btnTaps++;
-    btnLine.textContent = 'button taps: ' + btnTaps;
-    document.body.style.background = btnTaps % 2 ? '#e0f2fe' : '#f4f6fb';
-  });
-</script>
+<body style="font-family:system-ui;text-align:center;padding:40px">
+  <h1>IF YOU SEE THIS, IT WORKS</h1>
+  <button onclick="alert('CLICK WORKS')">CLICK ME</button>
 </body>
 </html>

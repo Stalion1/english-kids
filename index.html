@@ -58,7 +58,7 @@ section{max-width:560px;margin:0 auto;padding:18px;}
   background:var(--card);border-radius:18px;padding:18px;margin-bottom:18px;
   box-shadow:0 14px 30px rgba(0,0,0,.14);
   border:2px solid rgba(255,255,255,.6);
-  animation: cardIn .28s ease-out;
+  animation: cardIn .24s ease-out;
 }
 @keyframes cardIn{ from{transform:translateY(6px);opacity:.92} to{transform:translateY(0);opacity:1} }
 h2{margin:0 0 10px;font-size:20px;font-weight:1000;}
@@ -70,11 +70,11 @@ h2{margin:0 0 10px;font-size:20px;font-weight:1000;}
   object-fit:contain;
   padding:18px;
 }
-.wiggle{ animation: wiggle .35s ease-out; }
+.wiggle{ animation: wiggle .30s ease-out; }
 @keyframes wiggle{
   0%{ transform: rotate(0deg) scale(1); }
-  30%{ transform: rotate(-3deg) scale(1.02); }
-  60%{ transform: rotate(3deg) scale(1.02); }
+  35%{ transform: rotate(-3deg) scale(1.02); }
+  70%{ transform: rotate(3deg) scale(1.02); }
   100%{ transform: rotate(0deg) scale(1); }
 }
 
@@ -97,8 +97,13 @@ button.big:active{ transform: scale(.98); }
 .btn-pink{ background: linear-gradient(135deg,var(--pink),#ff86c9); color:#fff; }
 .btn-yellow{ background: linear-gradient(135deg,var(--yellow),#ffe98a); color:#5a3b00; }
 .btn-mint{ background: linear-gradient(135deg,var(--mint),#86efac); color:#064; }
+.btn-ghost{ background: rgba(255,255,255,.7); color:#1f2937; border:2px solid rgba(31,41,55,.08); }
 
-.small-note{ margin-top:10px; font-size:13px; font-weight:900; opacity:.75; }
+.small-note{ margin-top:10px; font-size:13px; font-weight:900; opacity:.78; }
+
+/* Locked UI */
+.locked{ opacity:.55; filter:grayscale(.15); }
+.locked button, .locked canvas{ pointer-events:none; }
 
 /* Canvas */
 canvas{
@@ -120,18 +125,19 @@ canvas{
 }
 #toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
 
-/* Star pop */
+/* FX layer */
 #fx{ position:fixed; inset:0; pointer-events:none; z-index:998; }
-.fx-star{
-  position:absolute;font-size:32px;
-  animation: floatUp .8s ease-out forwards;
+.fx{
+  position:absolute;
+  font-size:30px;
+  animation: floatUp .85s ease-out forwards;
   filter: drop-shadow(0 10px 10px rgba(0,0,0,.18));
 }
 @keyframes floatUp{
   0%{ transform: translate(-50%,-50%) scale(.7) rotate(-8deg); opacity:0; }
   20%{ opacity:1; }
-  60%{ transform: translate(-50%,-90px) scale(1.1) rotate(6deg); }
-  100%{ transform: translate(-50%,-130px) scale(.9) rotate(0deg); opacity:0; }
+  60%{ transform: translate(-50%,-90px) scale(1.15) rotate(8deg); }
+  100%{ transform: translate(-50%,-130px) scale(.95) rotate(0deg); opacity:0; }
 }
 
 /* Lock overlay */
@@ -160,7 +166,7 @@ canvas{
     <div>🌈 English Kids</div>
     <div class="pill">🧩 L<span id="levelNum">1</span> • <span id="lvlInfo">1/1</span></div>
     <div class="pill">⭐ <span id="stars">0</span> <button id="resetStars" type="button">Reset</button></div>
-    <div class="pill">Build: <span id="buildTag">cartoons2</span></div>
+    <div class="pill">Build: <span id="buildTag">choices-trace-v1</span></div>
   </div>
 </header>
 
@@ -179,119 +185,122 @@ canvas{
   <div class="card">
     <h2>👀 Look</h2>
     <img id="pic" src="" alt="Picture" />
-    <div class="small-note">Cartoon picture should show here 👆</div>
+    <div class="small-note">Look at the picture 👆</div>
   </div>
 
   <div class="card">
-    <h2>🤔 Guess</h2>
-    <div id="word" class="word">WORD</div>
-    <div class="row">
-      <button class="big btn-yellow" id="randomBtn" type="button">Random 🎲</button>
-    </div>
+    <h2>🤔 Choose the word</h2>
+    <div id="masked" class="word">_ _ _</div>
+    <div class="row" id="choicesRow"></div>
+    <div class="small-note" id="choiceHint">Pick the matching word ✅</div>
   </div>
 
-  <div class="card">
+  <div class="card" id="sayCard">
     <h2>🗣️ Say</h2>
     <div class="row">
       <button class="big btn-blue" id="sayBtn" type="button">Say the word 🔊</button>
     </div>
+    <div class="small-note">Unlock by choosing the right word</div>
   </div>
 
-  <div class="card">
-    <h2>✍️ Write</h2>
+  <div class="card" id="writeCard">
+    <h2>✍️ Trace & Write</h2>
     <canvas id="draw" width="330" height="220"></canvas><br><br>
     <div class="row">
       <button class="big btn-pink" id="clearBtn" type="button">Clear ✨</button>
+      <button class="big btn-yellow" id="checkTraceBtn" type="button">Check Trace ✅</button>
     </div>
+
     <div class="row" style="margin-top:14px">
       <button class="big btn-mint" id="nextLevelBtn" type="button">Next Level ➡️</button>
     </div>
-    <div class="small-note">Try drawing the first letter 😊</div>
+
+    <div class="small-note">Trace the dotted word, then tap “Check Trace ✅”</div>
   </div>
 </section>
 
 <script>
-/* Working Twemoji CDN (MaxCDN hostname is dead; jsDelivr works) */
+/* Twemoji via jsDelivr */
 const T = (hex) => `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${hex}.png`;
 
+/* Bigger Level 1 (more playability) */
 const LEVELS = [
-  {
-    unlockStars: 0,
-    lessons: [
-      { word:"CAT",  say:"cat",  img:T("1f63a") },
-      { word:"DOG",  say:"dog",  img:T("1f436") },
-      { word:"COW",  say:"cow",  img:T("1f42e") },
-      { word:"PIG",  say:"pig",  img:T("1f437") },
-      { word:"FROG", say:"frog", img:T("1f438") },
-      { word:"BIRD", say:"bird", img:T("1f426") },
-      { word:"FISH", say:"fish", img:T("1f41f") },
-      { word:"BEAR", say:"bear", img:T("1f43b") },
-      { word:"LION", say:"lion", img:T("1f981") },
-      { word:"DUCK", say:"duck", img:T("1f986") },
-
-      { word:"BALL", say:"ball", img:T("26bd") },
-      { word:"BOOK", say:"book", img:T("1f4d6") },
-      { word:"CAKE", say:"cake", img:T("1f370") },
-      { word:"MILK", say:"milk", img:T("1f95b") },
-      { word:"RICE", say:"rice", img:T("1f35a") },
-      { word:"TACO", say:"taco", img:T("1f32e") },
-
-      { word:"CAR",  say:"car",  img:T("1f697") },
-      { word:"BUS",  say:"bus",  img:T("1f68c") },
-      { word:"BIKE", say:"bike", img:T("1f6b2") },
-      { word:"HAT",  say:"hat",  img:T("1f3a9") },
-      { word:"SOCK", say:"sock", img:T("1f9e6") },
-      { word:"TREE", say:"tree", img:T("1f333") },
-      { word:"STAR", say:"star", img:T("2b50") },
-      { word:"MOON", say:"moon", img:T("1f319") }
-    ]
-  },
-  {
-    unlockStars: 15,
-    lessons: [
-      { word:"ANT",  say:"ant",  img:T("1f41c") },
-      { word:"BEE",  say:"bee",  img:T("1f41d") },
-      { word:"OWL",  say:"owl",  img:T("1f989") },
-      { word:"FOX",  say:"fox",  img:T("1f98a") },
-      { word:"WOLF", say:"wolf", img:T("1f43a") },
-      { word:"GOAT", say:"goat", img:T("1f410") },
-      { word:"DEER", say:"deer", img:T("1f98c") },
-      { word:"CRAB", say:"crab", img:T("1f980") },
-
-      { word:"PEAR", say:"pear", img:T("1f350") },
-      { word:"KIWI", say:"kiwi", img:T("1f95d") },
-      { word:"CORN", say:"corn", img:T("1f33d") },
-      { word:"SOUP", say:"soup", img:T("1f372") },
-      { word:"SODA", say:"soda", img:T("1f964") },
-
-      { word:"HOME", say:"home", img:T("1f3e0") },
-      { word:"SHIP", say:"ship", img:T("1f6a2") },
-      { word:"BOAT", say:"boat", img:T("26f5") },
-      { word:"BELL", say:"bell", img:T("1f514") },
-      { word:"KEY",  say:"key",  img:T("1f511") },
-      { word:"DRUM", say:"drum", img:T("1f941") },
-      { word:"GAME", say:"game", img:T("1f3ae") },
-      { word:"FIRE", say:"fire", img:T("1f525") }
-    ]
-  }
+  { unlockStars: 0, lessons: [
+    { word:"CAT",  say:"cat",  img:T("1f63a") },
+    { word:"DOG",  say:"dog",  img:T("1f436") },
+    { word:"COW",  say:"cow",  img:T("1f42e") },
+    { word:"PIG",  say:"pig",  img:T("1f437") },
+    { word:"FROG", say:"frog", img:T("1f438") },
+    { word:"BIRD", say:"bird", img:T("1f426") },
+    { word:"FISH", say:"fish", img:T("1f41f") },
+    { word:"BEAR", say:"bear", img:T("1f43b") },
+    { word:"LION", say:"lion", img:T("1f981") },
+    { word:"DUCK", say:"duck", img:T("1f986") },
+    { word:"BALL", say:"ball", img:T("26bd") },
+    { word:"BOOK", say:"book", img:T("1f4d6") },
+    { word:"CAKE", say:"cake", img:T("1f370") },
+    { word:"MILK", say:"milk", img:T("1f95b") },
+    { word:"RICE", say:"rice", img:T("1f35a") },
+    { word:"TACO", say:"taco", img:T("1f32e") },
+    { word:"CAR",  say:"car",  img:T("1f697") },
+    { word:"BUS",  say:"bus",  img:T("1f68c") },
+    { word:"BIKE", say:"bike", img:T("1f6b2") },
+    { word:"HAT",  say:"hat",  img:T("1f3a9") },
+    { word:"SOCK", say:"sock", img:T("1f9e6") },
+    { word:"TREE", say:"tree", img:T("1f333") },
+    { word:"STAR", say:"star", img:T("2b50") },
+    { word:"MOON", say:"moon", img:T("1f319") },
+    { word:"EGG",  say:"egg",  img:T("1f95a") },
+    { word:"CUP",  say:"cup",  img:T("2615") },
+    { word:"KEY",  say:"key",  img:T("1f511") },
+    { word:"DRUM", say:"drum", img:T("1f941") }
+  ]},
+  { unlockStars: 25, lessons: [
+    { word:"ANT",  say:"ant",  img:T("1f41c") },
+    { word:"BEE",  say:"bee",  img:T("1f41d") },
+    { word:"OWL",  say:"owl",  img:T("1f989") },
+    { word:"FOX",  say:"fox",  img:T("1f98a") },
+    { word:"WOLF", say:"wolf", img:T("1f43a") },
+    { word:"GOAT", say:"goat", img:T("1f410") },
+    { word:"DEER", say:"deer", img:T("1f98c") },
+    { word:"CRAB", say:"crab", img:T("1f980") },
+    { word:"PEAR", say:"pear", img:T("1f350") },
+    { word:"KIWI", say:"kiwi", img:T("1f95d") },
+    { word:"CORN", say:"corn", img:T("1f33d") },
+    { word:"SOUP", say:"soup", img:T("1f372") },
+    { word:"SODA", say:"soda", img:T("1f964") },
+    { word:"HOME", say:"home", img:T("1f3e0") },
+    { word:"SHIP", say:"ship", img:T("1f6a2") },
+    { word:"BOAT", say:"boat", img:T("26f5") },
+    { word:"BELL", say:"bell", img:T("1f514") },
+    { word:"GAME", say:"game", img:T("1f3ae") },
+    { word:"FIRE", say:"fire", img:T("1f525") }
+  ]}
 ];
 
-// UI refs
+// ===== UI refs
 const pic = document.getElementById("pic");
-const wordEl = document.getElementById("word");
+const masked = document.getElementById("masked");
+const choicesRow = document.getElementById("choicesRow");
+const choiceHint = document.getElementById("choiceHint");
+
 const toast = document.getElementById("toast");
 const fx = document.getElementById("fx");
 const levelNumEl = document.getElementById("levelNum");
 const lvlInfoEl = document.getElementById("lvlInfo");
+
+const sayCard = document.getElementById("sayCard");
+const writeCard = document.getElementById("writeCard");
+const sayBtn = document.getElementById("sayBtn");
+const clearBtn = document.getElementById("clearBtn");
+const checkTraceBtn = document.getElementById("checkTraceBtn");
+const nextLevelBtn = document.getElementById("nextLevelBtn");
+
 const lock = document.getElementById("lock");
 const needStarsEl = document.getElementById("needStars");
+document.getElementById("closeLock").addEventListener("click", ()=> lock.style.display="none");
 
-// Make image failures obvious (and stop silent blank)
-pic.addEventListener("error", () => {
-  pic.src = "https://placehold.co/230x230?text=IMG+BLOCKED";
-});
-
-// Toast
+// ===== Helpers
 function showToast(text){
   toast.textContent = text;
   toast.classList.add("show");
@@ -299,18 +308,18 @@ function showToast(text){
   showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
 }
 function wigglePic(){ pic.classList.remove("wiggle"); void pic.offsetWidth; pic.classList.add("wiggle"); }
-function glowWord(){ wordEl.classList.remove("wordGlow"); void wordEl.offsetWidth; wordEl.classList.add("wordGlow"); }
+function glowWord(){ masked.classList.remove("wordGlow"); void masked.offsetWidth; masked.classList.add("wordGlow"); }
 
-function starPop(x,y,count=1){
-  const n = Math.min(3, Math.max(1,count));
+function burst(x,y,emoji,count){
+  const n = Math.min(7, Math.max(3,count));
   for(let k=0;k<n;k++){
-    const s = document.createElement("div");
-    s.className = "fx-star";
-    s.textContent = "⭐";
-    s.style.left = (x + (Math.random()*28-14)) + "px";
-    s.style.top  = (y + (Math.random()*18-9)) + "px";
-    fx.appendChild(s);
-    setTimeout(()=>s.remove(), 900);
+    const e = document.createElement("div");
+    e.className="fx";
+    e.textContent=emoji;
+    e.style.left = (x + (Math.random()*60-30)) + "px";
+    e.style.top  = (y + (Math.random()*24-12)) + "px";
+    fx.appendChild(e);
+    setTimeout(()=>e.remove(), 900);
   }
 }
 function centerOf(el){
@@ -318,10 +327,9 @@ function centerOf(el){
   return {x:r.left + r.width/2, y:r.top + r.height/2};
 }
 
-// Saved state
-const STAR_KEY = "ek_stars_v4";
-const LEVEL_KEY = "ek_level_v3";
-
+// ===== Saved state
+const STAR_KEY = "ek_stars_v5";
+const LEVEL_KEY = "ek_level_v4";
 let stars = Number(localStorage.getItem(STAR_KEY) || "0");
 let level = Math.max(0, Math.min(LEVELS.length-1, Number(localStorage.getItem(LEVEL_KEY) || "0")));
 let idx = 0;
@@ -336,9 +344,8 @@ function addStars(n, anchorEl){
   localStorage.setItem(STAR_KEY, String(stars));
   paintStars();
   const c = anchorEl ? centerOf(anchorEl) : {x:window.innerWidth/2, y:80};
-  starPop(c.x,c.y,n);
+  burst(c.x,c.y,"⭐",n+2);
 }
-
 document.getElementById("resetStars").addEventListener("click", ()=>{
   stars = 0;
   localStorage.setItem(STAR_KEY, "0");
@@ -346,36 +353,128 @@ document.getElementById("resetStars").addEventListener("click", ()=>{
   showToast("Stars reset!");
 });
 
-document.getElementById("closeLock").addEventListener("click", ()=> lock.style.display="none");
+// ===== Lesson state (locked until correct choice)
+let unlocked = false;
 
 function canUseLevel(lv){ return stars >= LEVELS[lv].unlockStars; }
-
 function updateLevelPill(){
   levelNumEl.textContent = String(level+1);
   const total = LEVELS[level].lessons.length;
   lvlInfoEl.textContent = `${idx+1}/${total}`;
 }
+function getLesson(){ return LEVELS[level].lessons[idx]; }
 
-function render(){
-  const L = LEVELS[level].lessons[idx];
-  wordEl.textContent = L.word;
+function maskWord(w){
+  // show underscores like "_ _ _" or "_ _ _ _"
+  return w.split("").map(()=>"_").join(" ");
+}
+
+function setLockedUI(isLocked){
+  if(isLocked){
+    sayCard.classList.add("locked");
+    writeCard.classList.add("locked");
+  }else{
+    sayCard.classList.remove("locked");
+    writeCard.classList.remove("locked");
+  }
+}
+
+// ===== Choices
+function uniqueWordsPool(){
+  return LEVELS[level].lessons.map(x=>x.word);
+}
+function buildChoices(correctWord){
+  const pool = uniqueWordsPool().filter(w=>w !== correctWord);
+  // pick 3 random distractors
+  const picks = [];
+  while(picks.length < 3 && pool.length){
+    const j = Math.floor(Math.random()*pool.length);
+    picks.push(pool.splice(j,1)[0]);
+  }
+  const all = [correctWord, ...picks];
+  // shuffle
+  for(let k=all.length-1;k>0;k--){
+    const j = Math.floor(Math.random()*(k+1));
+    [all[k], all[j]] = [all[j], all[k]];
+  }
+  return all;
+}
+
+function renderChoices(){
+  const L = getLesson();
+  choicesRow.innerHTML = "";
+  const choices = buildChoices(L.word);
+  choices.forEach(w=>{
+    const b = document.createElement("button");
+    b.className = "big btn-ghost";
+    b.type = "button";
+    b.textContent = w;
+    b.addEventListener("click", ()=> chooseWord(w, b));
+    choicesRow.appendChild(b);
+  });
+}
+
+function chooseWord(wordPicked, btn){
+  const L = getLesson();
+  if(wordPicked === L.word){
+    unlocked = true;
+    masked.textContent = L.word; // reveal
+    glowWord();
+    setLockedUI(false);
+    choiceHint.textContent = "Correct! 🎉 Now you can Say and Trace!";
+    addStars(2, btn);
+    const c = centerOf(btn);
+    burst(c.x,c.y,"🎉",6);
+    showToast("Correct! ⭐ +2");
+    drawGuide(); // show dotted word
+  }else{
+    showToast("Try again 😊");
+    const c = centerOf(btn);
+    burst(c.x,c.y,"💫",3);
+  }
+}
+
+// ===== Render lesson
+function renderLesson(){
+  const L = getLesson();
+  unlocked = false;
+  setLockedUI(true);
+
   pic.src = L.img;
   pic.alt = L.word;
+  masked.textContent = maskWord(L.word);
+  choiceHint.textContent = "Pick the matching word ✅";
+  renderChoices();
   updateLevelPill();
+
+  clearUserInk();
+  drawGuide(); // guide is shown even when locked (so they see what they'll trace)
+  // But user can't draw until unlocked due to locked class pointer-events.
 }
 
-function randomWord(){
+function randomLesson(){
   idx = Math.floor(Math.random() * LEVELS[level].lessons.length);
-  render();
+  renderLesson();
   wigglePic();
+  showToast("New picture!");
 }
 
+// ===== Say
+sayBtn.addEventListener("click", ()=>{
+  if(!unlocked){ showToast("Pick the right word first 😊"); return; }
+  const L = getLesson();
+  const u = new SpeechSynthesisUtterance(L.say);
+  u.rate = 0.82;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  addStars(1, sayBtn);
+  showToast("Nice saying! ⭐ +1");
+});
+
+// ===== Next Level
 function nextLevel(){
   const next = level + 1;
-  if(next >= LEVELS.length){
-    showToast("Max level!");
-    return;
-  }
+  if(next >= LEVELS.length){ showToast("Max level!"); return; }
   if(!canUseLevel(next)){
     needStarsEl.textContent = String(LEVELS[next].unlockStars);
     lock.style.display = "block";
@@ -384,48 +483,90 @@ function nextLevel(){
   level = next;
   idx = 0;
   localStorage.setItem(LEVEL_KEY, String(level));
-  render();
+  renderLesson();
   showToast("Level up! 🧩");
 }
-
-const randomBtn = document.getElementById("randomBtn");
-const sayBtn = document.getElementById("sayBtn");
-const clearBtn = document.getElementById("clearBtn");
-const nextLevelBtn = document.getElementById("nextLevelBtn");
-
-randomBtn.addEventListener("click", ()=>{
-  randomWord();
-  addStars(1, randomBtn);
-  showToast("New word!");
-});
-
 nextLevelBtn.addEventListener("click", nextLevel);
 
-sayBtn.addEventListener("click", ()=>{
-  const u = new SpeechSynthesisUtterance(LEVELS[level].lessons[idx].say);
-  u.rate = 0.82;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(u);
-  glowWord();
-  addStars(1, sayBtn);
-  showToast("Great saying!");
+// ===== Random button (top)
+document.getElementById("randomBtn").addEventListener("click", ()=>{
+  randomLesson();
+  addStars(1, document.getElementById("randomBtn"));
 });
 
-// Drawing
+// ===== Canvas drawing + dotted guide + trace check
 const canvas = document.getElementById("draw");
 const ctx = canvas.getContext("2d");
+
+// Offscreen for guide scoring
+const guideCanvas = document.createElement("canvas");
+guideCanvas.width = canvas.width;
+guideCanvas.height = canvas.height;
+const gctx = guideCanvas.getContext("2d");
+
+function clearUserInk(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // re-draw guide after clearing ink
+  drawGuide();
+}
+
+function drawGuide(){
+  // draw guide on both canvases (main + offscreen) as faint dotted word
+  const L = getLesson();
+  const text = L.word;
+
+  // guide settings
+  const fontSize = 64;
+  const font = `900 ${fontSize}px Arial, system-ui, sans-serif`;
+
+  // Clear guide buffers
+  gctx.clearRect(0,0,guideCanvas.width,guideCanvas.height);
+
+  // MAIN: keep existing user ink; just draw guide underneath by redrawing whole thing:
+  // We'll redraw guide on main AFTER user ink clears; if user already drew, we keep it simple:
+  // draw a faint guide over the background (still okay).
+  // (If you want guide strictly under ink later, we can do two-layer canvases.)
+  // Draw guide on main:
+  // First: do nothing special, just draw faint dashed stroke text.
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([6, 8]);
+  ctx.font = font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.strokeStyle = "#4a6cf7";
+  ctx.strokeText(text, canvas.width/2, canvas.height/2);
+  ctx.restore();
+
+  // Offscreen guide for scoring (solid, higher alpha)
+  gctx.save();
+  gctx.globalAlpha = 1;
+  gctx.lineWidth = 6;
+  gctx.setLineDash([6, 8]);
+  gctx.font = font;
+  gctx.textAlign = "center";
+  gctx.textBaseline = "middle";
+  gctx.strokeStyle = "#000";
+  gctx.strokeText(text, guideCanvas.width/2, guideCanvas.height/2);
+  gctx.restore();
+}
+
+// Drawing
 ctx.lineWidth = 7;
 ctx.lineCap = "round";
 ctx.lineJoin = "round";
-let drawing = false;
+ctx.strokeStyle = "#111827";
 
+let drawing = false;
 canvas.addEventListener("pointerdown", e=>{
+  if(!unlocked) return;
   drawing = true;
   ctx.beginPath();
   ctx.moveTo(e.offsetX, e.offsetY);
 });
 canvas.addEventListener("pointermove", e=>{
-  if(!drawing) return;
+  if(!drawing || !unlocked) return;
   ctx.lineTo(e.offsetX, e.offsetY);
   ctx.stroke();
 });
@@ -433,13 +574,61 @@ canvas.addEventListener("pointerup", ()=>drawing=false);
 canvas.addEventListener("pointerleave", ()=>drawing=false);
 
 clearBtn.addEventListener("click", ()=>{
+  if(!unlocked){ showToast("Pick the right word first 😊"); return; }
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawGuide();
   addStars(1, clearBtn);
-  showToast("Clean slate!");
+  showToast("Clear! ⭐ +1");
+});
+
+// Simple trace scoring: how many guide pixels have ink nearby
+function checkTrace(){
+  if(!unlocked){ showToast("Pick the right word first 😊"); return false; }
+
+  // Get image data
+  const user = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  const guide = gctx.getImageData(0,0,guideCanvas.width,guideCanvas.height).data;
+
+  // Count guide pixels & overlapped pixels
+  let guideCount = 0;
+  let hitCount = 0;
+
+  // Thresholds: guide is black in offscreen; user ink is dark in main.
+  // Sample every 2 pixels for speed.
+  const step = 8; // bigger = faster; still fine on iPhone
+  for(let i=0; i<guide.length; i += 4*step){
+    const g = guide[i]; // red channel of guide
+    // guide pixel present if dark
+    if(g < 30){
+      guideCount++;
+      const u = user[i]; // red channel of user
+      if(u < 60) hitCount++;
+    }
+  }
+
+  // Avoid divide by zero
+  const ratio = guideCount ? (hitCount / guideCount) : 0;
+
+  // Kid-friendly threshold (not strict)
+  return ratio > 0.07; // ~7% overlap is enough for a reward
+}
+
+checkTraceBtn.addEventListener("click", ()=>{
+  const ok = checkTrace();
+  if(ok){
+    addStars(3, checkTraceBtn);
+    const c = centerOf(checkTraceBtn);
+    burst(c.x,c.y,"🎉",7);
+    showToast("Great tracing! ⭐ +3");
+  }else{
+    showToast("Almost! Trace the dotted word 😊");
+    const c = centerOf(checkTraceBtn);
+    burst(c.x,c.y,"💫",4);
+  }
 });
 
 // Start
-render();
+renderLesson();
 </script>
 </body>
 </html>

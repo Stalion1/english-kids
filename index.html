@@ -1,11 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>TEST</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Kids</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
+  color: #333;
+  text-align: center;
+}
+header {
+  background: #4a6cf7;
+  color: white;
+  padding: 16px;
+  font-size: 22px;
+  font-weight: bold;
+}
+section { padding: 20px; }
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+button {
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 14px 22px;
+  font-size: 18px;
+  border-radius: 10px;
+  margin: 10px;
+}
+button:active { background: #364fd1; }
+canvas {
+  border: 2px solid #4a6cf7;
+  border-radius: 10px;
+  touch-action: none;
+  background: white;
+}
+.word {
+  font-size: 26px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+</style>
 </head>
-<body style="font-family:system-ui;text-align:center;padding:40px">
-  <h1>IF YOU SEE THIS, IT WORKS</h1>
-  <button onclick="alert('CLICK WORKS')">CLICK ME</button>
+
+<body>
+<header>English Kids</header>
+
+<section>
+
+<div class="card">
+  <h2>👀 Look</h2>
+  <img id="pic" src="https://placehold.co/200x200?text=DOG" width="200" alt="Dog">
+</div>
+
+<div class="card">
+  <h2>🤔 Guess</h2>
+  <p>What is this?</p>
+  <div id="word" class="word">DOG</div>
+  <button onclick="randomWord()">Random 🎲</button>
+</div>
+
+<div class="card">
+  <h2>🗣️ Say</h2>
+  <button onclick="speak()">Say the word</button>
+</div>
+
+<div class="card">
+  <h2>✍️ Write</h2>
+  <canvas id="draw" width="300" height="200"></canvas><br>
+  <button onclick="clearCanvas()">Clear</button>
+</div>
+
+</section>
+
+<script>
+const lessons = [
+  { word:"DOG", say:"dog", img:"https://placehold.co/200x200?text=DOG" },
+  { word:"CAT", say:"cat", img:"https://placehold.co/200x200?text=CAT" },
+  { word:"BALL", say:"ball", img:"https://placehold.co/200x200?text=BALL" },
+  { word:"BOOK", say:"book", img:"https://placehold.co/200x200?text=BOOK" }
+];
+
+let i = 0;
+
+function render(){
+  document.getElementById("word").textContent = lessons[i].word;
+  document.getElementById("pic").src = lessons[i].img;
+}
+
+function randomWord(){
+  i = Math.floor(Math.random()*lessons.length);
+  render();
+}
+
+function speak() {
+  const msg = new SpeechSynthesisUtterance(lessons[i].say);
+  msg.rate = 0.8;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
+}
+
+// Drawing
+const canvas = document.getElementById("draw");
+const ctx = canvas.getContext("2d");
+let drawing = false;
+
+canvas.addEventListener("pointerdown", e => {
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+});
+
+canvas.addEventListener("pointermove", e => {
+  if (!drawing) return;
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+});
+
+canvas.addEventListener("pointerup", () => drawing = false);
+canvas.addEventListener("pointerleave", () => drawing = false);
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+render();
+</script>
+
 </body>
 </html>

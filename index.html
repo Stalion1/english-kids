@@ -41,7 +41,7 @@ header{
   background:rgba(255,255,255,.18);
   border:2px solid rgba(255,255,255,.22);
   padding:6px 10px;border-radius:999px;
-  font-size:14px;font-weight:1000;
+  font-size:13px;font-weight:1000;
   backdrop-filter: blur(6px);
 }
 .pill button{
@@ -70,16 +70,16 @@ h2{margin:0 0 10px;font-size:20px;font-weight:1000;}
   object-fit:contain;
   padding:18px;
 }
-.wiggle{ animation: wiggle .45s ease-out; }
+.wiggle{ animation: wiggle .35s ease-out; }
 @keyframes wiggle{
   0%{ transform: rotate(0deg) scale(1); }
-  25%{ transform: rotate(-3deg) scale(1.02); }
-  55%{ transform: rotate(3deg) scale(1.02); }
+  30%{ transform: rotate(-3deg) scale(1.02); }
+  60%{ transform: rotate(3deg) scale(1.02); }
   100%{ transform: rotate(0deg) scale(1); }
 }
 
 .word{ font-size:34px;font-weight:1000;letter-spacing:2px;margin-top:10px; }
-.wordGlow{ animation: glow .6s ease-out; }
+.wordGlow{ animation: glow .45s ease-out; }
 @keyframes glow{
   0%{ text-shadow:0 0 0 rgba(74,108,247,0); transform: scale(1); }
   55%{ text-shadow:0 0 18px rgba(74,108,247,.35); transform: scale(1.05); }
@@ -124,14 +124,14 @@ canvas{
 #fx{ position:fixed; inset:0; pointer-events:none; z-index:998; }
 .fx-star{
   position:absolute;font-size:32px;
-  animation: floatUp .9s ease-out forwards;
+  animation: floatUp .8s ease-out forwards;
   filter: drop-shadow(0 10px 10px rgba(0,0,0,.18));
 }
 @keyframes floatUp{
   0%{ transform: translate(-50%,-50%) scale(.7) rotate(-8deg); opacity:0; }
   20%{ opacity:1; }
   60%{ transform: translate(-50%,-90px) scale(1.1) rotate(6deg); }
-  100%{ transform: translate(-50%,-140px) scale(.9) rotate(0deg); opacity:0; }
+  100%{ transform: translate(-50%,-130px) scale(.9) rotate(0deg); opacity:0; }
 }
 
 /* Lock overlay */
@@ -158,8 +158,9 @@ canvas{
 <header>
   <div class="header-row">
     <div>🌈 English Kids</div>
-    <div class="pill">🧩 Level <span id="levelNum">1</span> • <span id="lvlInfo">1/1</span></div>
+    <div class="pill">🧩 L<span id="levelNum">1</span> • <span id="lvlInfo">1/1</span></div>
     <div class="pill">⭐ <span id="stars">0</span> <button id="resetStars" type="button">Reset</button></div>
+    <div class="pill">Build: <span id="buildTag">cartoons2</span></div>
   </div>
 </header>
 
@@ -178,7 +179,7 @@ canvas{
   <div class="card">
     <h2>👀 Look</h2>
     <img id="pic" src="" alt="Picture" />
-    <div class="small-note">Cartoon hint picture 👆</div>
+    <div class="small-note">Cartoon picture should show here 👆</div>
   </div>
 
   <div class="card">
@@ -194,7 +195,6 @@ canvas{
     <div class="row">
       <button class="big btn-blue" id="sayBtn" type="button">Say the word 🔊</button>
     </div>
-    <div class="small-note">Tap • Repeat out loud</div>
   </div>
 
   <div class="card">
@@ -203,19 +203,16 @@ canvas{
     <div class="row">
       <button class="big btn-pink" id="clearBtn" type="button">Clear ✨</button>
     </div>
-
-    <!-- Next Level moved HERE (bottom by Clear) -->
     <div class="row" style="margin-top:14px">
       <button class="big btn-mint" id="nextLevelBtn" type="button">Next Level ➡️</button>
     </div>
-
     <div class="small-note">Try drawing the first letter 😊</div>
   </div>
 </section>
 
 <script>
-/* Cartoon pictures via Twemoji CDN */
-const T = (hex) => `https://twemoji.maxcdn.com/v/latest/72x72/${hex}.png`;
+/* Working Twemoji CDN (MaxCDN hostname is dead; jsDelivr works) */
+const T = (hex) => `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${hex}.png`;
 
 const LEVELS = [
   {
@@ -276,24 +273,6 @@ const LEVELS = [
       { word:"GAME", say:"game", img:T("1f3ae") },
       { word:"FIRE", say:"fire", img:T("1f525") }
     ]
-  },
-  {
-    unlockStars: 40,
-    lessons: [
-      { word:"HAND", say:"hand", img:T("1f590") },
-      { word:"EYES", say:"eyes", img:T("1f440") },
-      { word:"NOSE", say:"nose", img:T("1f443") },
-      { word:"FACE", say:"face", img:T("1f642") },
-
-      { word:"RAIN", say:"rain", img:T("1f327") },
-      { word:"SNOW", say:"snow", img:T("1f328") },
-      { word:"WIND", say:"wind", img:T("1f32c") },
-
-      { word:"GIFT", say:"gift", img:T("1f381") },
-      { word:"NOTE", say:"note", img:T("1f3b5") },
-      { word:"TIME", say:"time", img:T("23f0") },
-      { word:"LOVE", say:"love", img:T("2764") }
-    ]
   }
 ];
 
@@ -306,6 +285,11 @@ const levelNumEl = document.getElementById("levelNum");
 const lvlInfoEl = document.getElementById("lvlInfo");
 const lock = document.getElementById("lock");
 const needStarsEl = document.getElementById("needStars");
+
+// Make image failures obvious (and stop silent blank)
+pic.addEventListener("error", () => {
+  pic.src = "https://placehold.co/230x230?text=IMG+BLOCKED";
+});
 
 // Toast
 function showToast(text){
@@ -326,7 +310,7 @@ function starPop(x,y,count=1){
     s.style.left = (x + (Math.random()*28-14)) + "px";
     s.style.top  = (y + (Math.random()*18-9)) + "px";
     fx.appendChild(s);
-    setTimeout(()=>s.remove(), 950);
+    setTimeout(()=>s.remove(), 900);
   }
 }
 function centerOf(el){
@@ -335,8 +319,8 @@ function centerOf(el){
 }
 
 // Saved state
-const STAR_KEY = "ek_stars_v3";
-const LEVEL_KEY = "ek_level_v2";
+const STAR_KEY = "ek_stars_v4";
+const LEVEL_KEY = "ek_level_v3";
 
 let stars = Number(localStorage.getItem(STAR_KEY) || "0");
 let level = Math.max(0, Math.min(LEVELS.length-1, Number(localStorage.getItem(LEVEL_KEY) || "0")));
@@ -353,7 +337,6 @@ function addStars(n, anchorEl){
   paintStars();
   const c = anchorEl ? centerOf(anchorEl) : {x:window.innerWidth/2, y:80};
   starPop(c.x,c.y,n);
-  showToast("⭐ +" + n);
 }
 
 document.getElementById("resetStars").addEventListener("click", ()=>{

@@ -63,10 +63,12 @@ section{max-width:560px;margin:0 auto;padding:18px;}
 @keyframes cardIn{ from{transform:translateY(6px);opacity:.92} to{transform:translateY(0);opacity:1} }
 h2{margin:0 0 10px;font-size:20px;font-weight:1000;}
 
-img{
+#pic{
   width:230px;height:230px;border-radius:18px;background:#fff;
   border:3px solid rgba(74,108,247,.18);
   box-shadow:0 16px 28px rgba(0,0,0,.16);
+  object-fit:contain;
+  padding:18px;
 }
 .wiggle{ animation: wiggle .45s ease-out; }
 @keyframes wiggle{
@@ -75,6 +77,7 @@ img{
   55%{ transform: rotate(3deg) scale(1.02); }
   100%{ transform: rotate(0deg) scale(1); }
 }
+
 .word{ font-size:34px;font-weight:1000;letter-spacing:2px;margin-top:10px; }
 .wordGlow{ animation: glow .6s ease-out; }
 @keyframes glow{
@@ -82,6 +85,7 @@ img{
   55%{ text-shadow:0 0 18px rgba(74,108,247,.35); transform: scale(1.05); }
   100%{ text-shadow:0 2px 0 rgba(255,255,255,.8); transform: scale(1); }
 }
+
 .row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:12px;}
 button.big{
   border:none;border-radius:16px;padding:14px 18px;font-size:18px;font-weight:1000;
@@ -94,6 +98,9 @@ button.big:active{ transform: scale(.98); }
 .btn-yellow{ background: linear-gradient(135deg,var(--yellow),#ffe98a); color:#5a3b00; }
 .btn-mint{ background: linear-gradient(135deg,var(--mint),#86efac); color:#064; }
 
+.small-note{ margin-top:10px; font-size:13px; font-weight:900; opacity:.75; }
+
+/* Canvas */
 canvas{
   width:330px;height:220px;border-radius:16px;
   border:3px solid rgba(74,108,247,.25);background:#fff;touch-action:none;
@@ -151,8 +158,8 @@ canvas{
 <header>
   <div class="header-row">
     <div>🌈 English Kids</div>
-    <div class="pill" id="levelPill">🧩 Level <span id="levelNum">1</span> • <span id="lvlInfo">1/4</span></div>
-    <div class="pill" id="starPill">⭐ <span id="stars">0</span> <button id="resetStars" type="button">Reset</button></div>
+    <div class="pill">🧩 Level <span id="levelNum">1</span> • <span id="lvlInfo">1/1</span></div>
+    <div class="pill">⭐ <span id="stars">0</span> <button id="resetStars" type="button">Reset</button></div>
   </div>
 </header>
 
@@ -170,20 +177,15 @@ canvas{
 <section>
   <div class="card">
     <h2>👀 Look</h2>
-    <img id="pic" src="https://placehold.co/230x230?text=DOG" alt="DOG" />
+    <img id="pic" src="" alt="Picture" />
+    <div class="small-note">Cartoon hint picture 👆</div>
   </div>
 
   <div class="card">
     <h2>🤔 Guess</h2>
-    <div id="word" class="word">DOG</div>
-
+    <div id="word" class="word">WORD</div>
     <div class="row">
       <button class="big btn-yellow" id="randomBtn" type="button">Random 🎲</button>
-    </div>
-
-    <!-- BIG, always-visible Next Level button -->
-    <div class="row" style="margin-top:14px">
-      <button class="big btn-mint" id="nextLevelBtn" type="button">Next Level ➡️</button>
     </div>
   </div>
 
@@ -192,35 +194,107 @@ canvas{
     <div class="row">
       <button class="big btn-blue" id="sayBtn" type="button">Say the word 🔊</button>
     </div>
+    <div class="small-note">Tap • Repeat out loud</div>
   </div>
 
   <div class="card">
     <h2>✍️ Write</h2>
     <canvas id="draw" width="330" height="220"></canvas><br><br>
-    <button class="big btn-pink" id="clearBtn" type="button">Clear ✨</button>
+    <div class="row">
+      <button class="big btn-pink" id="clearBtn" type="button">Clear ✨</button>
+    </div>
+
+    <!-- Next Level moved HERE (bottom by Clear) -->
+    <div class="row" style="margin-top:14px">
+      <button class="big btn-mint" id="nextLevelBtn" type="button">Next Level ➡️</button>
+    </div>
+
+    <div class="small-note">Try drawing the first letter 😊</div>
   </div>
 </section>
 
 <script>
+/* Cartoon pictures via Twemoji CDN */
+const T = (hex) => `https://twemoji.maxcdn.com/v/latest/72x72/${hex}.png`;
+
 const LEVELS = [
-  { unlockStars: 0,  lessons: [
-    { word:"DOG",  say:"dog",  img:"https://placehold.co/230x230?text=DOG"  },
-    { word:"CAT",  say:"cat",  img:"https://placehold.co/230x230?text=CAT"  },
-    { word:"BALL", say:"ball", img:"https://placehold.co/230x230?text=BALL" },
-    { word:"BOOK", say:"book", img:"https://placehold.co/230x230?text=BOOK" }
-  ]},
-  { unlockStars: 10, lessons: [
-    { word:"FISH", say:"fish", img:"https://placehold.co/230x230?text=FISH" },
-    { word:"BIRD", say:"bird", img:"https://placehold.co/230x230?text=BIRD" },
-    { word:"MILK", say:"milk", img:"https://placehold.co/230x230?text=MILK" },
-    { word:"CAKE", say:"cake", img:"https://placehold.co/230x230?text=CAKE" }
-  ]},
-  { unlockStars: 25, lessons: [
-    { word:"CHAIR", say:"chair", img:"https://placehold.co/230x230?text=CHAIR" },
-    { word:"TABLE", say:"table", img:"https://placehold.co/230x230?text=TABLE" },
-    { word:"HOUSE", say:"house", img:"https://placehold.co/230x230?text=HOUSE" },
-    { word:"APPLE", say:"apple", img:"https://placehold.co/230x230?text=APPLE" }
-  ]}
+  {
+    unlockStars: 0,
+    lessons: [
+      { word:"CAT",  say:"cat",  img:T("1f63a") },
+      { word:"DOG",  say:"dog",  img:T("1f436") },
+      { word:"COW",  say:"cow",  img:T("1f42e") },
+      { word:"PIG",  say:"pig",  img:T("1f437") },
+      { word:"FROG", say:"frog", img:T("1f438") },
+      { word:"BIRD", say:"bird", img:T("1f426") },
+      { word:"FISH", say:"fish", img:T("1f41f") },
+      { word:"BEAR", say:"bear", img:T("1f43b") },
+      { word:"LION", say:"lion", img:T("1f981") },
+      { word:"DUCK", say:"duck", img:T("1f986") },
+
+      { word:"BALL", say:"ball", img:T("26bd") },
+      { word:"BOOK", say:"book", img:T("1f4d6") },
+      { word:"CAKE", say:"cake", img:T("1f370") },
+      { word:"MILK", say:"milk", img:T("1f95b") },
+      { word:"RICE", say:"rice", img:T("1f35a") },
+      { word:"TACO", say:"taco", img:T("1f32e") },
+
+      { word:"CAR",  say:"car",  img:T("1f697") },
+      { word:"BUS",  say:"bus",  img:T("1f68c") },
+      { word:"BIKE", say:"bike", img:T("1f6b2") },
+      { word:"HAT",  say:"hat",  img:T("1f3a9") },
+      { word:"SOCK", say:"sock", img:T("1f9e6") },
+      { word:"TREE", say:"tree", img:T("1f333") },
+      { word:"STAR", say:"star", img:T("2b50") },
+      { word:"MOON", say:"moon", img:T("1f319") }
+    ]
+  },
+  {
+    unlockStars: 15,
+    lessons: [
+      { word:"ANT",  say:"ant",  img:T("1f41c") },
+      { word:"BEE",  say:"bee",  img:T("1f41d") },
+      { word:"OWL",  say:"owl",  img:T("1f989") },
+      { word:"FOX",  say:"fox",  img:T("1f98a") },
+      { word:"WOLF", say:"wolf", img:T("1f43a") },
+      { word:"GOAT", say:"goat", img:T("1f410") },
+      { word:"DEER", say:"deer", img:T("1f98c") },
+      { word:"CRAB", say:"crab", img:T("1f980") },
+
+      { word:"PEAR", say:"pear", img:T("1f350") },
+      { word:"KIWI", say:"kiwi", img:T("1f95d") },
+      { word:"CORN", say:"corn", img:T("1f33d") },
+      { word:"SOUP", say:"soup", img:T("1f372") },
+      { word:"SODA", say:"soda", img:T("1f964") },
+
+      { word:"HOME", say:"home", img:T("1f3e0") },
+      { word:"SHIP", say:"ship", img:T("1f6a2") },
+      { word:"BOAT", say:"boat", img:T("26f5") },
+      { word:"BELL", say:"bell", img:T("1f514") },
+      { word:"KEY",  say:"key",  img:T("1f511") },
+      { word:"DRUM", say:"drum", img:T("1f941") },
+      { word:"GAME", say:"game", img:T("1f3ae") },
+      { word:"FIRE", say:"fire", img:T("1f525") }
+    ]
+  },
+  {
+    unlockStars: 40,
+    lessons: [
+      { word:"HAND", say:"hand", img:T("1f590") },
+      { word:"EYES", say:"eyes", img:T("1f440") },
+      { word:"NOSE", say:"nose", img:T("1f443") },
+      { word:"FACE", say:"face", img:T("1f642") },
+
+      { word:"RAIN", say:"rain", img:T("1f327") },
+      { word:"SNOW", say:"snow", img:T("1f328") },
+      { word:"WIND", say:"wind", img:T("1f32c") },
+
+      { word:"GIFT", say:"gift", img:T("1f381") },
+      { word:"NOTE", say:"note", img:T("1f3b5") },
+      { word:"TIME", say:"time", img:T("23f0") },
+      { word:"LOVE", say:"love", img:T("2764") }
+    ]
+  }
 ];
 
 // UI refs
@@ -261,8 +335,8 @@ function centerOf(el){
 }
 
 // Saved state
-const STAR_KEY = "ek_stars_v2";
-const LEVEL_KEY = "ek_level_v1";
+const STAR_KEY = "ek_stars_v3";
+const LEVEL_KEY = "ek_level_v2";
 
 let stars = Number(localStorage.getItem(STAR_KEY) || "0");
 let level = Math.max(0, Math.min(LEVELS.length-1, Number(localStorage.getItem(LEVEL_KEY) || "0")));
@@ -291,9 +365,8 @@ document.getElementById("resetStars").addEventListener("click", ()=>{
 
 document.getElementById("closeLock").addEventListener("click", ()=> lock.style.display="none");
 
-function canUseLevel(lv){
-  return stars >= LEVELS[lv].unlockStars;
-}
+function canUseLevel(lv){ return stars >= LEVELS[lv].unlockStars; }
+
 function updateLevelPill(){
   levelNumEl.textContent = String(level+1);
   const total = LEVELS[level].lessons.length;
@@ -335,6 +408,7 @@ function nextLevel(){
 const randomBtn = document.getElementById("randomBtn");
 const sayBtn = document.getElementById("sayBtn");
 const clearBtn = document.getElementById("clearBtn");
+const nextLevelBtn = document.getElementById("nextLevelBtn");
 
 randomBtn.addEventListener("click", ()=>{
   randomWord();
@@ -342,7 +416,7 @@ randomBtn.addEventListener("click", ()=>{
   showToast("New word!");
 });
 
-document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
+nextLevelBtn.addEventListener("click", nextLevel);
 
 sayBtn.addEventListener("click", ()=>{
   const u = new SpeechSynthesisUtterance(LEVELS[level].lessons[idx].say);
@@ -360,7 +434,6 @@ const ctx = canvas.getContext("2d");
 ctx.lineWidth = 7;
 ctx.lineCap = "round";
 ctx.lineJoin = "round";
-
 let drawing = false;
 
 canvas.addEventListener("pointerdown", e=>{
@@ -382,6 +455,7 @@ clearBtn.addEventListener("click", ()=>{
   showToast("Clean slate!");
 });
 
+// Start
 render();
 </script>
 </body>

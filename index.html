@@ -7,7 +7,7 @@
 
 <style>
 :root{
-  --blue:#4a6cf7; --purple:#7b5cff; --pink:#ff4fa3; --yellow:#ffd54a;
+  --blue:#4a6cf7; --purple:#7b5cff; --pink:#ff4fa3; --mint:#22c55e; --yellow:#ffd54a;
   --ink:#1f2937; --card:rgba(255,255,255,.92);
 }
 *{box-sizing:border-box}
@@ -92,6 +92,7 @@ button.big:active{ transform: scale(.98); }
 .btn-blue{ background: linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; }
 .btn-pink{ background: linear-gradient(135deg,var(--pink),#ff86c9); color:#fff; }
 .btn-yellow{ background: linear-gradient(135deg,var(--yellow),#ffe98a); color:#5a3b00; }
+.btn-mint{ background: linear-gradient(135deg,var(--mint),#86efac); color:#064; }
 
 canvas{
   width:330px;height:220px;border-radius:16px;
@@ -150,7 +151,7 @@ canvas{
 <header>
   <div class="header-row">
     <div>🌈 English Kids</div>
-    <div class="pill" id="levelPill">🧩 Level <span id="levelNum">1</span> • <span id="lvlInfo">0/0</span></div>
+    <div class="pill" id="levelPill">🧩 Level <span id="levelNum">1</span> • <span id="lvlInfo">1/4</span></div>
     <div class="pill" id="starPill">⭐ <span id="stars">0</span> <button id="resetStars" type="button">Reset</button></div>
   </div>
 </header>
@@ -175,9 +176,14 @@ canvas{
   <div class="card">
     <h2>🤔 Guess</h2>
     <div id="word" class="word">DOG</div>
+
     <div class="row">
       <button class="big btn-yellow" id="randomBtn" type="button">Random 🎲</button>
-      <button class="big btn-blue" id="nextLevelBtn" type="button">Next Level ➡️</button>
+    </div>
+
+    <!-- BIG, always-visible Next Level button -->
+    <div class="row" style="margin-top:14px">
+      <button class="big btn-mint" id="nextLevelBtn" type="button">Next Level ➡️</button>
     </div>
   </div>
 
@@ -197,36 +203,24 @@ canvas{
 
 <script>
 const LEVELS = [
-  {
-    name: "Level 1",
-    unlockStars: 0,
-    lessons: [
-      { word:"DOG",  say:"dog",  img:"https://placehold.co/230x230?text=DOG"  },
-      { word:"CAT",  say:"cat",  img:"https://placehold.co/230x230?text=CAT"  },
-      { word:"BALL", say:"ball", img:"https://placehold.co/230x230?text=BALL" },
-      { word:"BOOK", say:"book", img:"https://placehold.co/230x230?text=BOOK" }
-    ]
-  },
-  {
-    name: "Level 2",
-    unlockStars: 10,
-    lessons: [
-      { word:"FISH",  say:"fish",  img:"https://placehold.co/230x230?text=FISH"  },
-      { word:"BIRD",  say:"bird",  img:"https://placehold.co/230x230?text=BIRD"  },
-      { word:"MILK",  say:"milk",  img:"https://placehold.co/230x230?text=MILK"  },
-      { word:"CAKE",  say:"cake",  img:"https://placehold.co/230x230?text=CAKE"  }
-    ]
-  },
-  {
-    name: "Level 3",
-    unlockStars: 25,
-    lessons: [
-      { word:"CHAIR", say:"chair", img:"https://placehold.co/230x230?text=CHAIR" },
-      { word:"TABLE", say:"table", img:"https://placehold.co/230x230?text=TABLE" },
-      { word:"HOUSE", say:"house", img:"https://placehold.co/230x230?text=HOUSE" },
-      { word:"APPLE", say:"apple", img:"https://placehold.co/230x230?text=APPLE" }
-    ]
-  }
+  { unlockStars: 0,  lessons: [
+    { word:"DOG",  say:"dog",  img:"https://placehold.co/230x230?text=DOG"  },
+    { word:"CAT",  say:"cat",  img:"https://placehold.co/230x230?text=CAT"  },
+    { word:"BALL", say:"ball", img:"https://placehold.co/230x230?text=BALL" },
+    { word:"BOOK", say:"book", img:"https://placehold.co/230x230?text=BOOK" }
+  ]},
+  { unlockStars: 10, lessons: [
+    { word:"FISH", say:"fish", img:"https://placehold.co/230x230?text=FISH" },
+    { word:"BIRD", say:"bird", img:"https://placehold.co/230x230?text=BIRD" },
+    { word:"MILK", say:"milk", img:"https://placehold.co/230x230?text=MILK" },
+    { word:"CAKE", say:"cake", img:"https://placehold.co/230x230?text=CAKE" }
+  ]},
+  { unlockStars: 25, lessons: [
+    { word:"CHAIR", say:"chair", img:"https://placehold.co/230x230?text=CHAIR" },
+    { word:"TABLE", say:"table", img:"https://placehold.co/230x230?text=TABLE" },
+    { word:"HOUSE", say:"house", img:"https://placehold.co/230x230?text=HOUSE" },
+    { word:"APPLE", say:"apple", img:"https://placehold.co/230x230?text=APPLE" }
+  ]}
 ];
 
 // UI refs
@@ -236,6 +230,8 @@ const toast = document.getElementById("toast");
 const fx = document.getElementById("fx");
 const levelNumEl = document.getElementById("levelNum");
 const lvlInfoEl = document.getElementById("lvlInfo");
+const lock = document.getElementById("lock");
+const needStarsEl = document.getElementById("needStars");
 
 // Toast
 function showToast(text){
@@ -267,6 +263,7 @@ function centerOf(el){
 // Saved state
 const STAR_KEY = "ek_stars_v2";
 const LEVEL_KEY = "ek_level_v1";
+
 let stars = Number(localStorage.getItem(STAR_KEY) || "0");
 let level = Math.max(0, Math.min(LEVELS.length-1, Number(localStorage.getItem(LEVEL_KEY) || "0")));
 let idx = 0;
@@ -282,6 +279,7 @@ function addStars(n, anchorEl){
   paintStars();
   const c = anchorEl ? centerOf(anchorEl) : {x:window.innerWidth/2, y:80};
   starPop(c.x,c.y,n);
+  showToast("⭐ +" + n);
 }
 
 document.getElementById("resetStars").addEventListener("click", ()=>{
@@ -291,9 +289,6 @@ document.getElementById("resetStars").addEventListener("click", ()=>{
   showToast("Stars reset!");
 });
 
-// Level lock overlay
-const lock = document.getElementById("lock");
-const needStarsEl = document.getElementById("needStars");
 document.getElementById("closeLock").addEventListener("click", ()=> lock.style.display="none");
 
 function canUseLevel(lv){
@@ -337,20 +332,25 @@ function nextLevel(){
   showToast("Level up! 🧩");
 }
 
-document.getElementById("randomBtn").addEventListener("click", ()=>{
+const randomBtn = document.getElementById("randomBtn");
+const sayBtn = document.getElementById("sayBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+randomBtn.addEventListener("click", ()=>{
   randomWord();
-  addStars(1, document.getElementById("randomBtn"));
+  addStars(1, randomBtn);
   showToast("New word!");
 });
+
 document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
 
-document.getElementById("sayBtn").addEventListener("click", ()=>{
+sayBtn.addEventListener("click", ()=>{
   const u = new SpeechSynthesisUtterance(LEVELS[level].lessons[idx].say);
   u.rate = 0.82;
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
   glowWord();
-  addStars(1, document.getElementById("sayBtn"));
+  addStars(1, sayBtn);
   showToast("Great saying!");
 });
 
@@ -360,6 +360,7 @@ const ctx = canvas.getContext("2d");
 ctx.lineWidth = 7;
 ctx.lineCap = "round";
 ctx.lineJoin = "round";
+
 let drawing = false;
 
 canvas.addEventListener("pointerdown", e=>{
@@ -375,9 +376,9 @@ canvas.addEventListener("pointermove", e=>{
 canvas.addEventListener("pointerup", ()=>drawing=false);
 canvas.addEventListener("pointerleave", ()=>drawing=false);
 
-document.getElementById("clearBtn").addEventListener("click", ()=>{
+clearBtn.addEventListener("click", ()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  addStars(1, document.getElementById("clearBtn"));
+  addStars(1, clearBtn);
   showToast("Clean slate!");
 });
 

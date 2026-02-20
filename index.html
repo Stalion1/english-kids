@@ -1,4 +1,16 @@
-
+<script>
+window.onerror = function (msg, url, line, col, error) {
+  document.body.innerHTML =
+    '<div style="padding:16px;background:#b00020;color:white;font-family:system-ui">' +
+    '<h2>JavaScript Error</h2>' +
+    '<p><strong>Message:</strong> ' + msg + '</p>' +
+    '<p><strong>Line:</strong> ' + line + '</p>' +
+    '<p><strong>Column:</strong> ' + col + '</p>' +
+    '<p><strong>Source:</strong> ' + url + '</p>' +
+    '</div>';
+  return true;
+};
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>

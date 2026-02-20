@@ -15,7 +15,6 @@
   --bg2:#fcb69f;
   --card:#ffffffee;
 }
-
 *{box-sizing:border-box}
 
 body{
@@ -26,14 +25,14 @@ body{
   text-align:center;
 }
 
-/* Header + star meter */
+/* Header */
 header{
   position: sticky;
   top: 0;
   z-index: 5;
   background: linear-gradient(90deg,var(--blue),#7b5cff);
   color:#fff;
-  padding:12px 12px;
+  padding:12px;
   font-size:20px;
   font-weight:900;
   box-shadow:0 6px 16px rgba(0,0,0,.25);
@@ -47,6 +46,13 @@ header{
   margin:0 auto;
 }
 .app-title{display:flex; align-items:center; gap:8px;}
+.pills{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* Star meter */
 .star-meter{
   display:flex;
   align-items:center;
@@ -68,6 +74,27 @@ header{
 }
 .star-meter button:active{transform:scale(.98);}
 
+/* Music toggle pill */
+.music-pill{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background: rgba(255,255,255,.18);
+  border: 2px solid rgba(255,255,255,.25);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 1000;
+  backdrop-filter: blur(6px);
+}
+.music-pill button{
+  padding:8px 10px;
+  font-size:14px;
+  border-radius:999px;
+  box-shadow:none;
+}
+.music-pill button:active{transform:scale(.98);}
+
 section{
   max-width:520px;
   margin:0 auto;
@@ -82,10 +109,7 @@ section{
   box-shadow:0 10px 24px rgba(0,0,0,.15);
 }
 
-h2{
-  margin:0 0 10px;
-  font-size:20px;
-}
+h2{ margin:0 0 10px; font-size:20px; }
 
 img{
   width:220px;
@@ -101,9 +125,7 @@ img{
   letter-spacing:2px;
   margin:10px 0;
 }
-.hidden{
-  letter-spacing:6px;
-}
+.hidden{ letter-spacing:6px; }
 
 .row{
   display:flex;
@@ -129,7 +151,6 @@ button:active{transform:scale(.97);}
 .btn-yellow{background:linear-gradient(135deg,var(--yellow),#ffe98a);color:#5a3b00}
 .btn-mint{background:linear-gradient(135deg,var(--mint),#7ff3e7);color:#064}
 
-/* Drawing canvas */
 #draw{
   width:320px;
   height:210px;
@@ -140,14 +161,13 @@ button:active{transform:scale(.97);}
   box-shadow: inset 0 0 0 2px #4a6cf720;
 }
 
-/* Floating star reward animation */
+/* FX layer */
 #fx-layer{
   position:fixed;
   inset:0;
   pointer-events:none;
   z-index: 9999;
 }
-
 .fx-star{
   position:absolute;
   font-size: 32px;
@@ -161,11 +181,7 @@ button:active{transform:scale(.97);}
   60%  { transform: translate(-50%, -90px) scale(1.1) rotate(6deg); }
   100% { transform: translate(-50%, -140px) scale(.9) rotate(0deg); opacity:0; }
 }
-
-/* Tiny pop for header star count */
-.pop{
-  animation: pop .22s ease-out;
-}
+.pop{ animation: pop .22s ease-out; }
 @keyframes pop{
   0%{transform:scale(1)}
   60%{transform:scale(1.18)}
@@ -185,10 +201,18 @@ button:active{transform:scale(.97);}
 <header>
   <div class="header-row">
     <div class="app-title">🌈 English Kids</div>
-    <div class="star-meter" aria-label="Stars earned">
-      <span class="big">⭐</span>
-      <span id="starCount">0</span>
-      <button class="btn-yellow" id="resetStarsBtn" title="Reset stars">Reset</button>
+
+    <div class="pills">
+      <div class="music-pill" title="Background music">
+        🎵 <span id="musicState">OFF</span>
+        <button class="btn-mint" id="musicBtn">Music</button>
+      </div>
+
+      <div class="star-meter" aria-label="Stars earned">
+        <span class="big">⭐</span>
+        <span id="starCount">0</span>
+        <button class="btn-yellow" id="resetStarsBtn" title="Reset stars">Reset</button>
+      </div>
     </div>
   </div>
 </header>
@@ -246,34 +270,32 @@ const pic = document.getElementById("pic");
 const wordEl = document.getElementById("word");
 
 /* ---------------------------
-   Stars (saved on device)
+   Stars (saved)
 --------------------------- */
 const STAR_KEY = "englishkids_stars_v1";
 let stars = Number(localStorage.getItem(STAR_KEY) || "0");
 
 const starCountEl = document.getElementById("starCount");
 const starMeterEl = document.querySelector(".star-meter");
-function renderStars(){
-  starCountEl.textContent = String(stars);
-}
+
+function renderStars(){ starCountEl.textContent = String(stars); }
 renderStars();
 
 function addStars(n=1, x=null, y=null){
   stars += n;
   localStorage.setItem(STAR_KEY, String(stars));
   renderStars();
-  // little header pop
+
   starMeterEl.classList.remove("pop");
   void starMeterEl.offsetWidth;
   starMeterEl.classList.add("pop");
-  // star FX
+
   if (x != null && y != null) spawnStarFX(x, y, n);
-  // reward chime
+
   rewardChime();
 }
 
-document.getElementById("resetStarsBtn").addEventListener("click", (e)=>{
-  // keep it simple: one-tap reset
+document.getElementById("resetStarsBtn").addEventListener("click", ()=>{
   stars = 0;
   localStorage.setItem(STAR_KEY, "0");
   renderStars();
@@ -292,8 +314,7 @@ function render(){
 render();
 
 /* ---------------------------
-   Sound effects (WebAudio)
-   (User interaction required to start on iOS)
+   Audio (clicks + rewards + MUSIC)
 --------------------------- */
 let audioCtx = null;
 function ensureAudio(){
@@ -303,6 +324,7 @@ function ensureAudio(){
   }
   if (audioCtx.state === "suspended") audioCtx.resume();
 }
+
 function tone(freq, duration=0.12, gain=0.12, type="sine"){
   ensureAudio();
   const o = audioCtx.createOscillator();
@@ -317,14 +339,110 @@ function tone(freq, duration=0.12, gain=0.12, type="sine"){
   o.start();
   o.stop(audioCtx.currentTime + duration + 0.02);
 }
-function clickSound(freq=600){
-  tone(freq, 0.09, 0.10, "triangle");
-}
+function clickSound(freq=600){ tone(freq, 0.09, 0.10, "triangle"); }
 function rewardChime(){
-  // a quick happy two-tone chime
   tone(880, 0.10, 0.12, "sine");
   setTimeout(()=>tone(1175, 0.12, 0.10, "sine"), 70);
 }
+
+/* ---- Background music (C: starts only after user taps Music) ---- */
+const MUSIC_KEY = "englishkids_music_on_v1";
+let musicOn = (localStorage.getItem(MUSIC_KEY) === "1"); // remember preference
+let musicNodes = null; // {osc1, osc2, gain, lfo, lfoGain, filter}
+const musicStateEl = document.getElementById("musicState");
+const musicBtn = document.getElementById("musicBtn");
+
+function updateMusicUI(){
+  musicStateEl.textContent = musicOn ? "ON" : "OFF";
+}
+updateMusicUI();
+
+// Create a soft looping “pad” (no files)
+function startMusic(){
+  ensureAudio();
+  if (musicNodes) return;
+
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.0; // fade in
+  gain.connect(audioCtx.destination);
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 900;
+  filter.Q.value = 0.7;
+  filter.connect(gain);
+
+  // Two oscillators for a gentle chord feel
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  osc1.type = "sine";
+  osc2.type = "triangle";
+  osc1.frequency.value = 220;   // A3
+  osc2.frequency.value = 277.18; // C#4-ish (sweet)
+  osc1.connect(filter);
+  osc2.connect(filter);
+
+  // Slow LFO for gentle movement
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.type = "sine";
+  lfo.frequency.value = 0.10; // very slow
+  lfoGain.gain.value = 35;    // mod amount
+  lfo.connect(lfoGain);
+  lfoGain.connect(filter.frequency);
+
+  osc1.start(); osc2.start(); lfo.start();
+
+  // Fade in
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 0.8);
+
+  musicNodes = {osc1, osc2, gain, filter, lfo, lfoGain};
+}
+
+function stopMusic(){
+  if (!musicNodes) return;
+  const {osc1, osc2, gain, lfo} = musicNodes;
+
+  // Fade out quickly
+  const now = audioCtx.currentTime;
+  gain.gain.cancelScheduledValues(now);
+  gain.gain.setValueAtTime(Math.max(0.0001, gain.gain.value), now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+  setTimeout(()=>{
+    try{ osc1.stop(); }catch{}
+    try{ osc2.stop(); }catch{}
+    try{ lfo.stop(); }catch{}
+    musicNodes = null;
+  }, 420);
+}
+
+function setMusic(on){
+  musicOn = on;
+  localStorage.setItem(MUSIC_KEY, musicOn ? "1" : "0");
+  updateMusicUI();
+  if (musicOn) startMusic();
+  else stopMusic();
+}
+
+musicBtn.addEventListener("click", ()=>{
+  // This is the required "first tap" that unlocks audio on iOS
+  ensureAudio();
+  clickSound(520);
+  setMusic(!musicOn);
+});
+
+// If the user previously set music ON, we still must wait for a user gesture
+// to start it. We'll start it after their first interaction (any pointerdown).
+let autoStartArmed = musicOn;
+window.addEventListener("pointerdown", ()=>{
+  if (autoStartArmed){
+    ensureAudio();
+    startMusic();
+    autoStartArmed = false;
+  }
+}, {once:false});
 
 /* ---------------------------
    Floating star FX
@@ -344,8 +462,6 @@ function spawnStarFX(x, y, count=1){
     setTimeout(()=>s.remove(), 950);
   }
 }
-
-/* helper: get center of a button for FX */
 function centerOf(el){
   const r = el.getBoundingClientRect();
   return { x: r.left + r.width/2, y: r.top + r.height/2 };
@@ -364,90 +480,8 @@ revealBtn.addEventListener("click", ()=>{
   shown = true;
   render();
   const c = centerOf(revealBtn);
-  addStars(2, c.x, c.y); // bigger reward
+  addStars(2, c.x, c.y);
 });
 
 randomBtn.addEventListener("click", ()=>{
-  clickSound(520);
-  i = Math.floor(Math.random() * lessons.length);
-  shown = false;
-  render();
-  const c = centerOf(randomBtn);
-  addStars(1, c.x, c.y);
-});
-
-sayBtn.addEventListener("click", ()=>{
-  clickSound(640);
-  const msg = new SpeechSynthesisUtterance(lessons[i].say);
-  msg.rate = 0.82;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(msg);
-  const c = centerOf(sayBtn);
-  addStars(1, c.x, c.y);
-});
-
-/* ---------------------------
-   Drawing (better feel + reward on first stroke)
---------------------------- */
-const canvas = document.getElementById("draw");
-const ctx = canvas.getContext("2d");
-
-// Make canvas crisp on phones
-function fitCanvas(){
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
-  const rect = canvas.getBoundingClientRect();
-  canvas.width  = Math.round(rect.width  * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.lineWidth = 7;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-}
-fitCanvas();
-window.addEventListener("resize", fitCanvas);
-
-let drawing = false;
-let earnedForThisDraw = false;
-
-function pos(e){
-  const r = canvas.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
-}
-
-canvas.addEventListener("pointerdown", (e)=>{
-  ensureAudio();
-  drawing = true;
-  const p = pos(e);
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-  canvas.setPointerCapture(e.pointerId);
-
-  if (!earnedForThisDraw){
-    const r = canvas.getBoundingClientRect();
-    addStars(1, r.left + r.width/2, r.top + 30);
-    earnedForThisDraw = true;
-  }
-});
-
-canvas.addEventListener("pointermove", (e)=>{
-  if(!drawing) return;
-  const p = pos(e);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-});
-
-function endDraw(e){
-  drawing = false;
-  try{ canvas.releasePointerCapture(e.pointerId); }catch{}
-}
-canvas.addEventListener("pointerup", endDraw);
-canvas.addEventListener("pointercancel", endDraw);
-canvas.addEventListener("pointerleave", ()=>drawing=false);
-
-clearBtn.addEventListener("click", ()=>{
-  clickSound(480);
-  const rect = canvas.getBoundingClientRect();
-  ctx.clearRect(0,0,rect.width,rect.height);
-  earnedForThisDraw = false;
-  // small reward for clearing to try again
-  addStars(1, rect.left + rect.width/2, rect.top +
+  click

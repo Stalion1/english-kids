@@ -15,110 +15,290 @@
   --ink:#1f2937;
   --card:rgba(255,255,255,.92);
 }
-
-*{ box-sizing:border-box; }
+*{box-sizing:border-box}
 
 body{
   margin:0;
   font-family: system-ui, -apple-system, "Arial Rounded MT Bold", Arial, sans-serif;
-  color: var(--ink);
+  color:var(--ink);
   text-align:center;
   background:
-    radial-gradient(900px 400px at 15% 10%, #fff7d6 0%, transparent 55%),
-    radial-gradient(900px 400px at 85% 25%, #dff7ff 0%, transparent 55%),
-    radial-gradient(900px 400px at 60% 90%, #f7dcff 0%, transparent 55%),
+    radial-gradient(900px 420px at 12% 10%, #fff7d6 0%, transparent 55%),
+    radial-gradient(900px 420px at 88% 25%, #dff7ff 0%, transparent 55%),
+    radial-gradient(900px 420px at 60% 92%, #f7dcff 0%, transparent 55%),
     linear-gradient(135deg, #ffe7d2, #f7b9ff 45%, #bfe8ff);
   min-height:100vh;
 }
 
-/* Header */
 header{
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  color: white;
-  padding: 14px 12px;
-  font-size: 22px;
-  font-weight: 1000;
-  letter-spacing: .3px;
-  background: linear-gradient(90deg, var(--blue), var(--purple));
-  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  position:sticky; top:0; z-index:10;
+  color:#fff;
+  padding:14px 12px;
+  font-size:22px;
+  font-weight:1000;
+  background: linear-gradient(90deg,var(--blue),var(--purple));
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
 }
 .header-row{
-  max-width: 560px;
-  margin: 0 auto;
+  max-width:560px;
+  margin:0 auto;
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:10px;
 }
 .badge{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  background: rgba(255,255,255,.18);
-  border: 2px solid rgba(255,255,255,.22);
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 900;
+  background:rgba(255,255,255,.18);
+  border:2px solid rgba(255,255,255,.22);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:900;
   backdrop-filter: blur(6px);
 }
 .badge .dot{
   width:10px;height:10px;border-radius:50%;
-  background: #7CFF9E;
-  box-shadow: 0 0 0 3px rgba(124,255,158,.25);
+  background:#7CFF9E;
+  box-shadow:0 0 0 3px rgba(124,255,158,.25);
 }
-.badge span{opacity:.95}
 
-section{
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 18px;
-}
+section{ max-width:560px; margin:0 auto; padding:18px; }
 
 .card{
-  background: var(--card);
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 18px;
-  box-shadow: 0 14px 30px rgba(0,0,0,.14);
-  border: 2px solid rgba(255,255,255,.6);
-  transform: translateZ(0);
-  animation: cardIn .35s ease-out;
+  background:var(--card);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:18px;
+  box-shadow:0 14px 30px rgba(0,0,0,.14);
+  border:2px solid rgba(255,255,255,.6);
+  animation: cardIn .28s ease-out;
 }
 @keyframes cardIn{
   from{ transform: translateY(6px); opacity:.92; }
-  to  { transform: translateY(0);   opacity:1; }
+  to{ transform: translateY(0); opacity:1; }
 }
 
-h2{
-  margin: 0 0 10px;
-  font-size: 20px;
-  font-weight: 1000;
-}
+h2{ margin:0 0 10px; font-size:20px; font-weight:1000; }
 
-.small-note{
-  margin-top:10px;
-  font-size: 13px;
-  font-weight: 800;
-  opacity: .78;
-}
-
-/* Picture */
 img{
-  width: 230px;
-  height: 230px;
-  border-radius: 18px;
-  background: white;
-  box-shadow: 0 16px 28px rgba(0,0,0,.16);
-  border: 3px solid rgba(74,108,247,.18);
+  width:230px; height:230px;
+  border-radius:18px;
+  background:#fff;
+  border:3px solid rgba(74,108,247,.18);
+  box-shadow:0 16px 28px rgba(0,0,0,.16);
 }
-.wiggle{
-  animation: wiggle .45s ease-out;
-}
+.wiggle{ animation: wiggle .45s ease-out; }
 @keyframes wiggle{
   0%{ transform: rotate(0deg) scale(1); }
   25%{ transform: rotate(-3deg) scale(1.02); }
   55%{ transform: rotate(3deg) scale(1.02); }
-  100%{ transform: rotate(0deg) scale(1
+  100%{ transform: rotate(0deg) scale(1); }
+}
+
+.word{
+  font-size:34px;
+  font-weight:1000;
+  letter-spacing:2px;
+  margin-top:10px;
+}
+.wordGlow{ animation: glow .6s ease-out; }
+@keyframes glow{
+  0%{ text-shadow:0 0 0 rgba(74,108,247,0); transform: scale(1); }
+  55%{ text-shadow:0 0 18px rgba(74,108,247,.35); transform: scale(1.05); }
+  100%{ text-shadow:0 2px 0 rgba(255,255,255,.8); transform: scale(1); }
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-top:12px;
+}
+
+button{
+  border:none;
+  border-radius:16px;
+  padding:14px 18px;
+  font-size:18px;
+  font-weight:1000;
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:0 10px 18px rgba(0,0,0,.14);
+}
+button:active{ transform: scale(.98); }
+
+.btn-blue{ background: linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; }
+.btn-pink{ background: linear-gradient(135deg,var(--pink),#ff86c9); color:#fff; }
+.btn-mint{ background: linear-gradient(135deg,#22c55e,#86efac); color:#064; }
+.btn-yellow{ background: linear-gradient(135deg,var(--yellow),#ffe98a); color:#5a3b00; }
+
+canvas{
+  width:330px;
+  height:220px;
+  border-radius:16px;
+  border:3px solid rgba(74,108,247,.25);
+  background:#fff;
+  touch-action:none;
+  box-shadow: inset 0 0 0 2px rgba(74,108,247,.08);
+}
+
+/* Toast */
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform: translateX(-50%) translateY(10px);
+  background:rgba(17,24,39,.92);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:14px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index:999;
+}
+#toast.show{
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
+.small-note{
+  margin-top:10px;
+  font-size:13px;
+  font-weight:800;
+  opacity:.78;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-row">
+    <div>🌈 English Kids</div>
+    <div class="badge"><span class="dot"></span><span>Tap • Guess • Say • Write</span></div>
+  </div>
+</header>
+
+<div id="toast">Nice!</div>
+
+<section>
+  <div class="card">
+    <h2>👀 Look</h2>
+    <img id="pic" src="https://placehold.co/230x230?text=DOG" alt="DOG" />
+    <div class="small-note">Tap “Random 🎲” for a new word!</div>
+  </div>
+
+  <div class="card">
+    <h2>🤔 Guess</h2>
+    <div id="word" class="word">DOG</div>
+    <div class="row">
+      <button class="btn-yellow" id="randomBtn">Random 🎲</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🗣️ Say</h2>
+    <div class="row">
+      <button class="btn-blue" id="sayBtn">Say the word 🔊</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✍️ Write</h2>
+    <canvas id="draw" width="330" height="220"></canvas><br><br>
+    <button class="btn-pink" id="clearBtn">Clear ✨</button>
+    <div class="small-note">Try drawing the first letter!</div>
+  </div>
+</section>
+
+<script>
+const lessons = [
+  { word:"DOG",  say:"dog",  img:"https://placehold.co/230x230?text=DOG"  },
+  { word:"CAT",  say:"cat",  img:"https://placehold.co/230x230?text=CAT"  },
+  { word:"BALL", say:"ball", img:"https://placehold.co/230x230?text=BALL" },
+  { word:"BOOK", say:"book", img:"https://placehold.co/230x230?text=BOOK" }
+];
+let i = 0;
+
+const pic = document.getElementById("pic");
+const wordEl = document.getElementById("word");
+const toast = document.getElementById("toast");
+
+function showToast(text){
+  toast.textContent = text;
+  toast.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toast.classList.remove("show"), 900);
+}
+
+function wigglePic(){
+  pic.classList.remove("wiggle");
+  void pic.offsetWidth;
+  pic.classList.add("wiggle");
+}
+
+function glowWord(){
+  wordEl.classList.remove("wordGlow");
+  void wordEl.offsetWidth;
+  wordEl.classList.add("wordGlow");
+}
+
+function render(){
+  const L = lessons[i];
+  wordEl.textContent = L.word;
+  pic.src = L.img;
+  pic.alt = L.word;
+}
+
+document.getElementById("randomBtn").addEventListener("click", ()=>{
+  i = Math.floor(Math.random() * lessons.length);
+  render();
+  wigglePic();
+  showToast("New word!");
+});
+
+document.getElementById("sayBtn").addEventListener("click", ()=>{
+  const u = new SpeechSynthesisUtterance(lessons[i].say);
+  u.rate = 0.82;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  glowWord();
+  showToast("Great saying!");
+});
+
+// Drawing
+const canvas = document.getElementById("draw");
+const ctx = canvas.getContext("2d");
+ctx.lineWidth = 7;
+ctx.lineCap = "round";
+ctx.lineJoin = "round";
+
+let drawing = false;
+
+canvas.addEventListener("pointerdown", e=>{
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+});
+canvas.addEventListener("pointermove", e=>{
+  if(!drawing) return;
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+});
+canvas.addEventListener("pointerup", ()=>drawing=false);
+canvas.addEventListener("pointerleave", ()=>drawing=false);
+
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  showToast("Clean slate!");
+});
+
+render();
+</script>
+</body>
+</html>
